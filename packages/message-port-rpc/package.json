@@ -73,7 +73,6 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "7.21.0",
-    "babel-jest": "^29.5.0"
+    "@babel/runtime-corejs3": "7.21.0"
   }
 }
