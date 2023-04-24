@@ -1,6 +1,6 @@
 # `message-port-rpc`
 
-Turns a [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort) into RPC stub.
+Turns a [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort) into an remote procedure call (RPC) stub.
 
 ## Background
 

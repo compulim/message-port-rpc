@@ -1,7 +1,7 @@
 {
   "name": "message-port-rpc",
   "version": "0.0.0-0",
-  "description": "Turns a MessagePort into RPC stub.",
+  "description": "Turns a MessagePort into an remote procedure call (RPC) stub.",
   "files": [
     "./lib/"
   ],
