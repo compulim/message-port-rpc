@@ -26,14 +26,14 @@ const worker = new Worker('./static/worker/js/main.js');
 // Creates a new pair of `MessagePort` dedicated for RPC.
 const { port1, port2 } = new MessageChannel();
 
-// Sends the port to the worker.
+// Sends the dedicated port to the worker.
 worker.postMessage(undefined, [port2]);
 
 // Creates a function stub.
 const callFunction = messagePortRPC<Fn>(port1);
 
 // Calls the function stub.
-callFunction(1, 2);
+const result: number = await callFunction(1, 2);
 ```
 
 ### On worker thread
@@ -48,7 +48,7 @@ type Fn = (x: number, y: number) => Promise<number>;
 
 // Receives the port dedicated for RPC.
 addEventListener('message', ({ ports }) => {
-  // Registers an RPC function on the `MessagePort`.
+  // Registers an RPC function on the received `MessagePort`.
   messagePortRPC<Fn>(ports[0], (x, y) => Promise.resolve(x + y));
 });
 ```
