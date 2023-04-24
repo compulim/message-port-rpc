@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "../lib/types/",
+    "emitDeclarationOnly": true
+  },
+  "exclude": ["**/*.spec.*", "**/*.test.*", "__test__/**/*"],
+  "extends": "./tsconfig.json"
+}

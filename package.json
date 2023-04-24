@@ -1,0 +1,33 @@
+{
+  "name": "message-port-rpc-root",
+  "version": "0.0.0-0",
+  "description": "Turns a MessagePort into RPC stub.",
+  "private": true,
+  "author": "William Wong (https://github.com/compulim)",
+  "license": "MIT",
+  "scripts": {
+    "build": "cd packages/message-port-rpc && npm run build",
+    "bump": "npm run bump:prod && npm run bump:dev && npm run bump:auditfix && npm run bump:packages",
+    "bump:auditfix": "npm audit fix || exit 0",
+    "bump:dev": "if [ `cat package.json | jq -r '(.devDependencies // {}) | length'` -ne 0 ]; then npm install $(cat package.json | jq -r '(.pinDependencies // {}) as $p | ((.devDependencies // {}) | keys) | map(. + \"@\" + ($p[.] // [\"latest\"])[0]) | .[]'); fi",
+    "bump:packages": "npm run bump:packages:main && npm run bump:packages:pages",
+    "bump:packages:main": "cd packages/message-port-rpc && npm run bump",
+    "bump:packages:pages": "cd packages/pages && npm run bump",
+    "bump:prod": "if [ `cat package.json | jq -r '(.dependencies // {}) | length'` -ne 0 ]; then npm install --save-exact $(cat package.json | jq -r '(.pinDependencies // {}) as $p | ((.dependencies // {}) | keys) | map(. + \"@\" + ($p[.] // [\"latest\"])[0]) | .[]'); fi",
+    "precommit": "npm run precommit:main && npm run precommit:integration",
+    "precommit:integration": "cd packages/message-port-rpc && npm run precommit",
+    "precommit:main": "cd packages/message-port-rpc && npm run precommit",
+    "prepare": "cd packages/message-port-rpc && npm clean-install",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:integration": "cd packages/integration-test && npm install && npm test",
+    "test:unit": "cd packages/message-port-rpc && npm test"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.39.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "prettier": "^2.8.8"
+  }
+}

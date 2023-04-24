@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true, // "@jest/environment" has internal conflicts on their types
+  },
+  "extends": "./tsconfig.json",
+  "include": ["**/*.spec.*", "**/*.test.*", "__test__/**/*"]
+}
