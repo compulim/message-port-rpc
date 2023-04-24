@@ -6,7 +6,7 @@ Turns a [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/Message
 
 Modern web apps often need to deal with multiple JavaScript workers or VMs. The communication channel is often [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort).
 
-By converting a `MessagePort` into an RPC stub, we are effectively offload a Promise function to a different thread.
+By converting a `MessagePort` into an RPC stub, we can easily offload a Promise function to a different thread.
 
 ## How to use
 
