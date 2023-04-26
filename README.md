@@ -92,6 +92,34 @@ We think a single function is much simpler, less responsibility, and more flexib
 
 To create a pool of RPC stubs, you should create multiple `MessagePort` and send it through an initializer RPC stub. The receiver side receiving these ports should set up RPC stubs for each of the port, registering their respective subroutine.
 
+### Can I call from the other side too?
+
+Yes, our implementation supports bidirectional calls over a pair of `MessagePort`. You can register a different function on both sides and call from the other side.
+
+```ts
+// On main thread:
+// - a power function is hosted on the port;
+// - the return value is the stub of the worker, which is a sum function.
+const sum = messagePortRPC<Fn>(port1, (x ** y) => x ** y);
+
+await sum(1, 2); // 3
+```
+
+```ts
+// On worker thread:
+// - a sum function is hosted on the port;
+// - the return value is the stub of the main thread, which is a power function.
+addEventListener('message', ({ ports }) => {
+  const power = messagePortRPC<Fn>(ports[0], (x + y) => x + y);
+
+  await power(3, 4); // 81
+});
+```
+
+### Do I need to sequence the calls myself?
+
+No, you don't need to wait for the call to return before making another call. Internally, all calls are isolated by their own pair of `MessagePort`.
+
 ## Contributions
 
 Like us? [Star](https://github.com/compulim/message-port-rpc/stargazers) us.
