@@ -126,7 +126,16 @@ No, you don't need to wait for the call to return before making another call. In
 
 Yes, thanks to the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm), you can send objects of `Error` class.
 
-However, the error object received will return `false` for `obj instanceof Error`. This is expected. Instead, you should use `Object.prototype.toString.call(obj) === '[object Error]'` to determine if the object is an error object or not. Alternatively, you can recreate the error object.
+However, there are slight difference in the error object received.
+
+```ts
+const obj = await stub();
+
+obj instanceof Error; // False. Error object from SCA has a different prototype.
+Object.prototype.toString.call(obj) === '[object Error]'; // True.
+```
+
+Alternatively, you can recreate the error object.
 
 ### Can I provide my own marshal/unmarshal function?
 
@@ -138,7 +147,7 @@ Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal
 
 We are professional developers. Our philosophy makes this package easy to use.
 
-- Standards: we use `MessagePort` and [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) as-is
+- Standards: we use [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort) and [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) as-is
 - Airtight: we wrap everything in their own `MessagePort`, no multiplexing = no leaking
 - Small scope: one `MessagePort` host one function only, more flexibility on building style
 - Simple: you know how to write it
