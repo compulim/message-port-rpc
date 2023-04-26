@@ -80,13 +80,15 @@ Instead of multiplexing multiple messages into a single `MessagePort`, a dedicat
 
 Internally, for every RPC call, we create a new pair of `MessagePort`. The result of the call is passed through the `MessagePort`. After the call is resolved/rejected/aborted, the `MessagePort` will be shutdown.
 
+Also, with a new pair of `MessagePort`, messages are queued until the event listener call [`MessagePort.start()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/start). In other words, with dedicated `MessagePort`, calls are less likely to get lost due to false-start.
+
 ### What can be passed as arguments and return value?
 
 All arguments and return value will be send over the `MessagePort`. The values must be transferable using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
 
-### Why only convert a single function?
+### Why hosting a single function vs. multiple functions?
 
-We think this approach is simpler, less responsibility, and more flexible.
+We think a single function is much simpler, less responsibility, and more flexible.
 
 To create a pool of RPC stubs, you should create multiple `MessagePort` and send it through an initializer RPC stub. The receiver side receiving these ports should set up RPC stubs for each of the port, registering their respective subroutine.
 
