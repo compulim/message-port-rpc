@@ -78,7 +78,17 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
 
 Instead of multiplexing multiple messages into a single `MessagePort`, a dedicated `MessagePort` simplifies the code, and easier to secure the channel.
 
-Internally, for every call, we create a new pair of `MessagePort`. The result of the call is passed through the `MessagePort`. When the call is resolved/rejected/aborted, the `MessagePort` will be shutdown.
+Internally, for every RPC call, we create a new pair of `MessagePort`. The result of the call is passed through the `MessagePort`. After the call is resolved/rejected/aborted, the `MessagePort` will be shutdown.
+
+### What can be passed as arguments and return value?
+
+All arguments and return value will be send over the `MessagePort`. The values must be transferable using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
+
+### Why only convert a single function?
+
+We think this approach is simpler, less responsibility, and more flexible.
+
+To create a pool of RPC stubs, you should create multiple `MessagePort` and send it through an initializer RPC stub. The receiver side receiving these ports should set up RPC stubs for each of the port, registering their respective subroutine.
 
 ## Contributions
 
