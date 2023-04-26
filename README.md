@@ -132,7 +132,17 @@ However, the error object received will return `false` for `obj instanceof Error
 
 No, we do not support custom marshal/unmarshal function.
 
-Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions for both sides of the port.
+Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions on both sides of the port.
+
+### Why should I use this implementation of RPC?
+
+We are professional developers. Our philosophy makes this package easy to use.
+
+- Standards: we use `MessagePort` and [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) as-is
+- Airtight: we wrap everything in their own `MessagePort`, no multiplexing = no leaking
+- Small scope: one `MessagePort` host one function only, more flexibility on building style
+- Simple: you know how to write it
+- Maintainability: we relies heavily on tooling and automation to maintain this package
 
 ## Contributions
 
