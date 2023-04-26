@@ -86,6 +86,8 @@ Also, with a new pair of `MessagePort`, messages are queued until the event list
 
 All arguments and return value will be send over the `MessagePort`. The values must be transferable using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
 
+In other words, you cannot pass `function` or `class` as an argument or return value.
+
 ### Why hosting a single function vs. multiple functions?
 
 We think a single function is much simpler, less responsibility, and more flexible.
