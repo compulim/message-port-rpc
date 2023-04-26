@@ -128,6 +128,12 @@ Yes, thanks to the [Structured Clone Algorithm](https://developer.mozilla.org/en
 
 However, the error object received will return `false` for `obj instanceof Error`. This is expected. Instead, you should use `Object.prototype.toString.call(obj) === '[object Error]'` to determine if the object is an error object or not. Alternatively, you can recreate the error object.
 
+### Can I provide my own marshal/unmarshal function?
+
+No, we do not support custom marshal/unmarshal function.
+
+Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions for both sides of the port.
+
 ## Contributions
 
 Like us? [Star](https://github.com/compulim/message-port-rpc/stargazers) us.
