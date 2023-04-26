@@ -122,6 +122,12 @@ addEventListener('message', ({ ports }) => {
 
 No, you don't need to wait for the call to return before making another call. Internally, all calls are isolated by their own pair of `MessagePort`.
 
+### Can I send `Error` object?
+
+Yes, thanks to the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm), you can send objects of `Error` class.
+
+However, the error object received will return `false` for `obj instanceof Error`. This is expected. Instead, you should use `Object.prototype.toString.call(obj) === '[object Error]'` to determine if the object is an error object or not. Alternatively, you can recreate the error object.
+
 ## Contributions
 
 Like us? [Star](https://github.com/compulim/message-port-rpc/stargazers) us.
