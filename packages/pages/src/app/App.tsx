@@ -1,6 +1,8 @@
 import { messagePortRPC } from 'message-port-rpc';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import ReducerDemo from './ReducerDemo';
+
 type Fn = (x: number, y: number) => Promise<number>;
 
 const App = () => {
@@ -34,7 +36,8 @@ const App = () => {
         Call
       </button>
       &nbsp;
-      {!isNaN(result) && <span>Result is {result}</span>}
+      <section>{!isNaN(result) && <span>Result is {result}</span>}</section>
+      <ReducerDemo />
     </div>
   );
 };

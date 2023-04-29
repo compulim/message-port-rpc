@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "jsx": "react",
+    "lib": ["DOM", "ESNext"],
     "moduleResolution": "nodenext",
     "noEmit": true,
     "strict": true,

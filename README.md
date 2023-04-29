@@ -62,6 +62,8 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
 ): {
   (...args: Parameters<T>): ReturnType<T>;
 
+  detach: () => void;
+
   withOptions: (
     args: Parameters<T>,
     init: {
@@ -142,6 +144,17 @@ Alternatively, you can recreate the error object.
 No, we do not support custom marshal/unmarshal function.
 
 Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions on both sides of the port.
+
+### Can I offload a Redux store or `useReducer` to a Web Worker?
+
+Yes, you could offload them to a Web Worker. Some notes to take:
+
+- action and state must be serializable through [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
+  - no classes, functions, DOM elements, no thunk, etc.
+- middleware must not contains code that does not work in worker
+  - no DOM access, etc.
+
+You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
 
 ### Why should I use this implementation of RPC?
 

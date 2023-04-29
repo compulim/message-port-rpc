@@ -6,7 +6,7 @@ import waitFor from '../__test__/__setup__/waitFor';
 
 type Fn = (x: number, y: number) => Promise<number>;
 type MockFn = jest.Mock<Fn>;
-type RPC = ReturnType<typeof messagePortRPC<Fn>>;
+type RPC = ReturnType<typeof messagePortRPC<Fn, Fn>>;
 
 describe('create RPC from port', () => {
   let fn1: MockFn;
@@ -135,6 +135,37 @@ describe('create RPC from port', () => {
         );
       });
     });
+
+    describe('call detach()', () => {
+      beforeEach(() => {
+        theRPC.detach();
+      });
+
+      test('should throw on call', () => expect(() => theRPC(12, 34)).toThrow('detached'));
+    });
+
+    describe('detach after calling', () => {
+      let callDeferred: ReturnType<typeof createDeferred<number>>;
+      let resultPromise: Promise<number>;
+
+      beforeEach(() => {
+        callDeferred = createDeferred();
+
+        fn2.mockImplementation(() => callDeferred.promise);
+
+        resultPromise = rpc1(12, 34);
+
+        rpc1.detach();
+      });
+
+      test('should throw on next call', () => expect(() => rpc1(12, 34)).toThrow('detached'));
+
+      describe('after result had returned', () => {
+        beforeEach(() => callDeferred.resolve(789));
+
+        test('should resolve', async () => expect(resultPromise).resolves.toBe(789));
+      });
+    });
   });
 });
 
@@ -232,5 +263,41 @@ describe('send with abort', () => {
     abortController.abort();
 
     await waitFor(() => expect(promise).rejects.toThrow('Aborted.'));
+  });
+});
+
+describe('assymetric functions', () => {
+  type Fn1 = (value: number) => string;
+  type Fn2 = (value: string) => number;
+
+  let fn1: jest.Mock<Fn1>;
+  let fn2: jest.Mock<Fn2>;
+  let port1: MessagePort;
+  let port2: MessagePort;
+  let rpc1: ReturnType<typeof messagePortRPC<Fn2, Fn1>>;
+  let rpc2: ReturnType<typeof messagePortRPC<Fn1, Fn2>>;
+
+  beforeEach(() => {
+    ({ port1, port2 } = new MessageChannel());
+
+    fn1 = jest.fn<(value: number) => string>(value => '' + value);
+    fn2 = jest.fn<(value: string) => number>(value => +value);
+
+    // TODO: Verify typing.
+    rpc1 = messagePortRPC<Fn2, Fn1>(port1, fn1);
+    rpc2 = messagePortRPC<Fn1, Fn2>(port2, fn2);
+  });
+
+  afterEach(() => {
+    port1?.close();
+    port2?.close();
+  });
+
+  test('port 1 -> port 2: call', async () => {
+    await expect(rpc1('123')).resolves.toBe(123);
+  });
+
+  test('port 2 -> port 1: call', async () => {
+    await expect(rpc2(123)).resolves.toBe('123');
   });
 });
