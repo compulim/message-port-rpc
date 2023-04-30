@@ -12,7 +12,7 @@ export default function useReducerSource<R extends Reducer<any, any>, I>(
   port: MessagePort,
   initializerArg: I,
   initializer?: (arg: I) => ReducerState<R>
-): readonly [ReducerState<R>, Dispatch<ReducerAction<R>>] | readonly [ReducerState<R>] {
+): readonly [ReducerState<R>, Dispatch<ReducerAction<R>>] {
   const dispatchRef = useRef<ReturnType<typeof messagePortRPC<(action: ReducerAction<R>) => void>>>();
   const [state, setState] = useState<ReducerState<R>>(
     () => (initializer?.(initializerArg) || initializerArg || {}) as ReducerState<R>
