@@ -253,7 +253,7 @@ We spent a lot of time experimenting with different options and landed on this d
 - you own the resources and control the lifetime of the resources, less likely to resources leak
 - you can control which side creates the ports and do not need to pipe them yourself
 - you can build marshal/unmarshal function without too much piping
-- you can build a custom channel (`MessagePort`-like) without too much piping
+- you can build a `MessagePort`-like custom channel without extra piping
 
 There are downsides:
 
