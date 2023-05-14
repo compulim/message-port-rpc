@@ -24,13 +24,6 @@ type ClientStub<T extends Subroutine> = (...args: Parameters<T>) => Promise<Retu
 
 type ClientStubWithExtra<T extends Subroutine> = ClientStub<T> & {
   /**
-   * EXPERIMENTAL: Detaches from the port. Future calls to the port will not be handled.
-   *
-   * `MessagePort` should not be reused after detach. This is because the port has already started.
-   */
-  detach: () => void;
-
-  /**
    * Creates a new stub with options.
    *
    * @param {AbortSignal} init.signal - Abort signal to abort the call to the stub.
@@ -80,8 +73,6 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
   type ClientSubroutineParameters = Parameters<C>;
   type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<C>>;
 
-  let detached = false;
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMessage = (event: MessageEvent<RPCCallMessage<S>>): void => {
     const data = event.data as RPCCallMessage<S> | undefined;
@@ -126,10 +117,6 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
   const createWithOptions =
     (init: CallInit): ((...args: ClientSubroutineParameters) => Promise<ClientSubroutineReturnValue>) =>
     (...args) => {
-      if (detached) {
-        throw new Error('Stub has detached.');
-      }
-
       return new Promise<ClientSubroutineReturnValue>((resolve, reject) => {
         const { port1, port2 } = new MessageChannel();
 
@@ -159,11 +146,6 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
     };
 
   const stub = createWithOptions({}) as ClientStubWithExtra<C>;
-
-  stub.detach = () => {
-    detached = true;
-    port.removeEventListener('message', handleMessage);
-  };
 
   stub.withOptions = createWithOptions;
 

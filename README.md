@@ -10,6 +10,10 @@ By converting a `MessagePort` into an RPC stub, we can easily offload a Promise 
 
 ## How to use
 
+Make sure the `MessagePort` used for RPC is dedicated and not started. No other listeners or posters should be using the same `MessagePort`.
+
+It is highly recommended to create a new [`MessageChannel`](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) and convert the new pair into RPC stubs.
+
 ### On main thread
 
 Creates a new pair of `MessagePort`, pass one of the port to the worker thread, then create a RPC stub on another port.
@@ -96,8 +100,6 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
   fn?: (this: { signal: AbortSignal }, ...args: Parameters<T>) => ReturnType<T>
 ): {
   (...args: Parameters<T>): ReturnType<T>;
-
-  detach: () => void;
 
   withOptions: (
     init: {
@@ -194,13 +196,11 @@ Yes, you could offload them to a Web Worker. Some notes to take:
 
 You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
 
-### When should I call `detach()`?
+### How can I stop the stub from listening to a port?
 
-> This is an experimental feature.
+You should close the port.
 
-In most cases, you should not need to call `detach()`.
-
-The `detach()` function is designed to detach the stub from the `MessagePort` without closing it. In most cases, you should not reuse the `MessagePort`. If the `MessagePort` is already opened, it will no longer queue up messages. Thus, remote invocations could be lost.
+The port for the stub must be dedicated to RPC and not to be reused. When you need to stop the stub from listening to a port, you should simply close the port.
 
 ### Why should I use this implementation of RPC?
 

@@ -135,37 +135,6 @@ describe('create RPC from port', () => {
         );
       });
     });
-
-    describe('call detach()', () => {
-      beforeEach(() => {
-        theRPC.detach();
-      });
-
-      test('should throw on call', () => expect(() => theRPC(12, 34)).toThrow('detached'));
-    });
-
-    describe('detach after calling', () => {
-      let callDeferred: ReturnType<typeof createDeferred<number>>;
-      let resultPromise: Promise<number>;
-
-      beforeEach(() => {
-        callDeferred = createDeferred();
-
-        fn2.mockImplementation(() => callDeferred.promise);
-
-        resultPromise = rpc1(12, 34);
-
-        rpc1.detach();
-      });
-
-      test('should throw on next call', () => expect(() => rpc1(12, 34)).toThrow('detached'));
-
-      describe('after result had returned', () => {
-        beforeEach(() => callDeferred.resolve(789));
-
-        test('should resolve', async () => expect(resultPromise).resolves.toBe(789));
-      });
-    });
   });
 });
 
