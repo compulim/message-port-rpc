@@ -9,8 +9,6 @@ const RESOLVE = 'RESOLVE';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Subroutine = (...args: any[]) => Promise<unknown> | unknown;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ServerSubroutine = (this: { signal: AbortSignal }, ...args: any[]) => Promise<unknown> | unknown;
 type RPCCallMessage<T extends Subroutine> = [typeof CALL, ...Parameters<T>];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RPCRejectMessage = [typeof REJECT, any];
@@ -21,10 +19,10 @@ type CallInit = {
   transfer?: Transferable[];
 };
 
-type Stub<T extends Subroutine> = {
-  // Regardless whether the T return Promise or not, the stub must return Promise.
-  (...args: Parameters<T>): Promise<ReturnValueOfPromise<ReturnType<T>>>;
+// Regardless whether T returns Promise or not, the client stub must return Promise.
+type ClientStub<T extends Subroutine> = (...args: Parameters<T>) => Promise<ReturnValueOfPromise<ReturnType<T>>>;
 
+type ClientStubWithExtra<T extends Subroutine> = ClientStub<T> & {
   /**
    * EXPERIMENTAL: Detaches from the port. Future calls to the port will not be handled.
    *
@@ -38,8 +36,10 @@ type Stub<T extends Subroutine> = {
    * @param {AbortSignal} init.signal - Abort signal to abort the call to the stub.
    * @param {Transferable[]} init.transfer - Transfer ownership of objects specified in `args`.
    */
-  withOptions: (init: CallInit) => (...args: Parameters<T>) => Promise<ReturnValueOfPromise<ReturnType<T>>>;
+  withOptions: (init: CallInit) => ClientStub<T>;
 };
+
+type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args: Parameters<T>) => ReturnType<T>;
 
 /**
  * Binds a function to a `MessagePort` in RPC fashion and/or create a RPC function stub connected to a `MessagePort`.
@@ -60,23 +60,23 @@ type Stub<T extends Subroutine> = {
  *
  * @returns A function, when called, will invoke the function on the other side of `MessagePort`.
  */
-export default function messagePortRPC<C extends Subroutine>(port: MessagePort): Stub<C>;
+export default function messagePortRPC<C extends Subroutine>(port: MessagePort): ClientStubWithExtra<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
-  fn: S
-): Stub<C>;
+  fn: ServerStub<S>
+): ClientStubWithExtra<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
-  fn: S,
+  fn: ServerStub<S>,
   options: { signal: AbortSignal }
-): Stub<C>;
+): ClientStubWithExtra<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
-  fn?: S
-): Stub<C> {
+  fn?: ServerStub<S>
+): ClientStubWithExtra<C> {
   type ClientSubroutineParameters = Parameters<C>;
   type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<C>>;
 
@@ -98,7 +98,10 @@ export default function messagePortRPC<C extends Subroutine, S extends ServerSub
           try {
             returnPort.onmessage = ({ data }) => Array.isArray(data) && data[0] === ABORT && abortController.abort();
 
-            returnPort.postMessage([RESOLVE, await fn.call({ signal: abortController.signal }, ...data.slice(1))]);
+            returnPort.postMessage([
+              RESOLVE,
+              await fn.call({ signal: abortController.signal }, ...(data.slice(1) as Parameters<S>))
+            ]);
           } catch (error) {
             returnPort.postMessage([REJECT, error]);
           } finally {
@@ -155,7 +158,7 @@ export default function messagePortRPC<C extends Subroutine, S extends ServerSub
       });
     };
 
-  const stub = createWithOptions({}) as Stub<C>;
+  const stub = createWithOptions({}) as ClientStubWithExtra<C>;
 
   stub.detach = () => {
     detached = true;
