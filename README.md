@@ -170,11 +170,11 @@ You will need to create a new `MessageChannel` and use [`HTMLIFrameElement.conte
 
 We think a single function is much simpler, less responsibility, and more flexible approach.
 
-To create a pool of RPC stubs, you should create multiple `MessagePort` and send it through an initializer RPC stub. The receiver side receiving these ports should set up RPC stubs for each of the port, registering their respective subroutine.
+To create a pool of stubs, you should create multiple `MessagePort`, one for each stub. Then, send it through an initializer stub. The receiver side receiving these ports should set up stubs for each of the port, registering their respective subroutine.
 
 ### Can I call from the other side too?
 
-Yes, our implementation supports bidirectional asymmetrical calls over a single pair of `MessagePort`.
+Yes, our implementation supports bidirectional and asymmetrical calls over a single pair of `MessagePort`.
 
 You can register different functions on both sides and call from the other side.
 
@@ -200,7 +200,7 @@ addEventListener('message', ({ ports }) => {
 
 ### Do I need to sequence the calls myself?
 
-No, you don't need to wait for the call to return before making another call.
+No, you do not need to wait for a call to return before making another call.
 
 Internally, all calls are isolated by their own pair of `MessagePort` and processed asynchronously.
 
