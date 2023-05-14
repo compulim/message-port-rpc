@@ -134,7 +134,7 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
   withOptions: (
     init: {
       signal?: AbortSignal;
-      tranfer?: Transferable[];
+      transfer?: Transferable[];
     }
   ) => T;
 };
@@ -266,6 +266,12 @@ There are downsides:
 - you need to write one more line of code
 
 At the end of the day, we think channel customization outweighted the disadvantages and made a bet on this design.
+
+### Can I use `BroadcastChannel` to listen to many client stubs at once?
+
+No, you cannot use [`BroadcastChannel`](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel).
+
+`BroadcastChannel` does not support sending `MessagePort` and other [transferable objects](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects), which is critical to the operation of the stub.
 
 ### Why should I use this implementation of RPC?
 
