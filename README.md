@@ -158,6 +158,14 @@ No, because the `this` context is commonly a class object or [`globalThis`](http
 
 If you need to pass `this`, please pass it as an argument.
 
+### Can I use it with `<iframe>`?
+
+Yes, you can use it with `<iframe>`.
+
+However, despite the communication channel in `<iframe>` is very similar to `MessagePort` and supports [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm), it is not `MessagePort`.
+
+You will need to create a new `MessageChannel` and use [`HTMLIFrameElement.contentWindow.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) to send one of the `MessagePort` to the `<iframe>` content window. Then, you can convert the `MessagePort` into RPC with this package.
+
 ### Why hosting a single function vs. multiple functions?
 
 We think a single function is much simpler, less responsibility, and more flexible approach.
