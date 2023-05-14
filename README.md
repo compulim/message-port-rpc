@@ -208,7 +208,7 @@ Internally, all calls are isolated by their own pair of `MessagePort` and proces
 
 Yes, thanks to the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm), you can send objects of `Error` class.
 
-However, there are slight difference in the error object received.
+However, there are slight differences in the error object received.
 
 ```ts
 const obj = await stub();
@@ -236,7 +236,7 @@ Yes, you can offload them to a Web Worker. Some notes to take:
 
 You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
 
-We will eventually these React hooks available.
+We will eventually made these React hooks available. Stay tuned.
 
 ### How can I stop the stub from listening to a port?
 
