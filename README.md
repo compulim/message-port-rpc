@@ -66,7 +66,7 @@ const abortController = new AbortController();
 const remoteFetch = messagePortRPC(port);
 
 // Calls the stub with arguments in array, and options.
-const fetchPromise = remoteFetch.withOptions(['https://github.com'], { signal: abortController.signal });
+const fetchPromise = remoteFetch.withOptions({ signal: abortController.signal })('https://github.com');
 
 // Aborts the ongoing call.
 abortController.abort();
@@ -88,7 +88,7 @@ messagePortRPC<Fn>(ports[0], (url: string) => {
 
 ## API
 
-The following is simplified view of the API. Please refer to our published typings for the full version.
+The following is simplified version of the API. Please refer to our published typings for the full version.
 
 ```ts
 function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
@@ -100,12 +100,11 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
   detach: () => void;
 
   withOptions: (
-    args: Parameters<T>,
     init: {
       signal?: AbortSignal;
       tranfer?: Transferable[];
     }
-  ) => ReturnType<T>;
+  ) => T;
 };
 ```
 

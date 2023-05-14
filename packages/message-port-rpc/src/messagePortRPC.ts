@@ -9,6 +9,7 @@ const RESOLVE = 'RESOLVE';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Subroutine = (...args: any[]) => Promise<unknown> | unknown;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ServerSubroutine = (this: { signal: AbortSignal }, ...args: any[]) => Promise<unknown> | unknown;
 type RPCCallMessage<T extends Subroutine> = [typeof CALL, ...Parameters<T>];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,6 +22,7 @@ type CallInit = {
 };
 
 type Stub<T extends Subroutine> = {
+  // Regardless whether the T return Promise or not, the stub must return Promise.
   (...args: Parameters<T>): Promise<ReturnValueOfPromise<ReturnType<T>>>;
 
   /**
@@ -31,13 +33,12 @@ type Stub<T extends Subroutine> = {
   detach: () => void;
 
   /**
-   * Calls the stub with options.
+   * Creates a new stub with options.
    *
-   * @param {Parameters<T>} args - Arguments to call the stub.
    * @param {AbortSignal} init.signal - Abort signal to abort the call to the stub.
    * @param {Transferable[]} init.transfer - Transfer ownership of objects specified in `args`.
    */
-  withOptions: (args: Parameters<T>, init: CallInit) => Promise<ReturnValueOfPromise<ReturnType<T>>>;
+  withOptions: (init: CallInit) => (...args: Parameters<T>) => Promise<ReturnValueOfPromise<ReturnType<T>>>;
 };
 
 /**
@@ -119,50 +120,49 @@ export default function messagePortRPC<C extends Subroutine, S extends ServerSub
   port.addEventListener('message', handleMessage);
   port.start();
 
-  const stubWithOptions = (
-    args: ClientSubroutineParameters,
-    init: CallInit = {}
-  ): Promise<ClientSubroutineReturnValue> => {
-    if (detached) {
-      throw new Error('Stub has detached.');
-    }
+  const createWithOptions =
+    (init: CallInit): ((...args: ClientSubroutineParameters) => Promise<ClientSubroutineReturnValue>) =>
+    (...args) => {
+      if (detached) {
+        throw new Error('Stub has detached.');
+      }
 
-    return new Promise<ClientSubroutineReturnValue>((resolve, reject) => {
-      const { port1, port2 } = new MessageChannel();
+      return new Promise<ClientSubroutineReturnValue>((resolve, reject) => {
+        const { port1, port2 } = new MessageChannel();
 
-      port1.onmessage = event => {
-        const data = event.data as RPCRejectMessage | RPCResolveMessage<C>;
+        port1.onmessage = event => {
+          const data = event.data as RPCRejectMessage | RPCResolveMessage<C>;
 
-        if (data[0] === RESOLVE) {
-          resolve(data[1]);
-        } else {
-          reject(data[1]);
-        }
+          if (data[0] === RESOLVE) {
+            resolve(data[1]);
+          } else {
+            reject(data[1]);
+          }
 
-        port1.close();
-      };
+          port1.close();
+        };
 
-      init?.signal?.addEventListener('abort', () => {
-        port1.postMessage([ABORT]);
-        port1.close();
+        init?.signal?.addEventListener('abort', () => {
+          port1.postMessage([ABORT]);
+          port1.close();
 
-        reject(new Error('Aborted.'));
+          reject(new Error('Aborted.'));
+        });
+
+        const callMessage: RPCCallMessage<C> = [CALL, ...args];
+
+        port.postMessage(callMessage, [port2, ...(init.transfer || [])]);
       });
+    };
 
-      const callMessage: RPCCallMessage<C> = [CALL, ...args];
-
-      port.postMessage(callMessage, [port2, ...(init.transfer || [])]);
-    });
-  };
-
-  const stub = (...args: ClientSubroutineParameters): Promise<ClientSubroutineReturnValue> => stubWithOptions(args);
+  const stub = createWithOptions({}) as Stub<C>;
 
   stub.detach = () => {
     detached = true;
     port.removeEventListener('message', handleMessage);
   };
 
-  stub.withOptions = stubWithOptions;
+  stub.withOptions = createWithOptions;
 
   return stub;
 }

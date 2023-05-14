@@ -198,7 +198,7 @@ describe('send transferables', () => {
 
       const arrayBuffer = new Int8Array([1, 2, 3]).buffer;
 
-      rpc.withOptions([arrayBuffer, port1], { transfer: [arrayBuffer, port1] });
+      rpc.withOptions({ transfer: [arrayBuffer, port1] })(arrayBuffer, port1);
 
       await waitFor(() => expect(fn).toBeCalledTimes(1));
     });
@@ -246,15 +246,22 @@ describe('send with abort', () => {
     ({ port1, port2 } = new MessageChannel());
 
     abortController = new AbortController();
-    fn = jest.fn(() => new Promise(() => {}));
+    fn = jest.fn(
+      () =>
+        new Promise(() => {
+          // Do nothing.
+        })
+    );
 
     messagePortRPC(port2, fn);
 
     rpc = messagePortRPC(port1);
-    promise = rpc.withOptions([12, 34], { signal: abortController.signal });
+    promise = rpc.withOptions({ signal: abortController.signal })(12, 34);
 
     // Catch it once so Node.js don't consider as unhandled rejection.
-    promise.catch(() => {});
+    promise.catch(() => {
+      // Do nothing.
+    });
 
     await waitFor(() => expect(fn).toBeCalledTimes(1));
   });
@@ -262,6 +269,9 @@ describe('send with abort', () => {
   afterEach(() => {
     port1?.close();
     port2?.close();
+
+    // Call abort() to release resources.
+    abortController.abort();
   });
 
   test('signal should not abort initially', async () => {
