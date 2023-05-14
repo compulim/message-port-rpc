@@ -70,6 +70,12 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
   port: MessagePort,
   fn?: ServerStub<S>
 ): ClientStubWithExtra<C> {
+  // We cannot neuter the input port because it would cause memory leak:
+  // - We can neuter a port by passing it through Structured Clone Algorithm so the input port will become non-functional
+  // - After a port is neutered, closing the neutered port will not close the cloned port
+  // - Thus, the port owner will no longer able to close the port
+  // - This defeated our philosophy: whoever pass a resources to a function, should own the resources unless it is intentional and no other workarounds
+
   type ClientSubroutineParameters = Parameters<C>;
   type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<C>>;
 

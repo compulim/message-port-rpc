@@ -15,7 +15,7 @@ body:
       description: |
         Please verify the issue on latest versions. Support on non-latest version is minimal and on a per case basis.
 
-        If you are using latest production, please verify against our latest development version as the issue could have been resolved recently. To install latest development version, run `npm install react-chain-of-responsibility@main`.
+        If you are using latest production, please verify against our latest development version as the issue could have been resolved recently. To install latest development version, run `npm install message-port-rpc@main`.
 
       multiple: true
       options:
@@ -30,10 +30,10 @@ body:
       description: Please describe how you import our package.
       multiple: true
       options:
-        - 'ESM: import { createChainOfResponsibility } from "react-chain-of-responsibility"'
-        - 'ESM: import createChainOfResponsibility from "react-chain-of-responsibility/createChainOfResponsibility"'
-        - 'CommonJS: require("react-chain-of-responsibility")'
-        - 'CommonJS: require("react-chain-of-responsibility/createChainOfResponsibility")'
+        - 'ESM: import { messagePortRPC } from "message-port-rpc"'
+        - 'ESM: import messagePortRPC from "message-port-rpc/messagePortRPC"'
+        - 'CommonJS: require("message-port-rpc")'
+        - 'CommonJS: require("message-port-rpc/messagePortRPC")'
         - Others or unrelated
     validations:
       required: true
@@ -79,32 +79,50 @@ body:
         *Support will be slow or denied if a test case is not provided.*
       render: js
       value: |
-        /** @jest-environment jsdom */
-        /// <reference types="@types/jest" />
+        import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-        import { render } from '@testing-library/react';
-        import React, { Fragment } from 'react';
+        import messagePortRPC from './messagePortRPC';
+        import waitFor from '../__test__/__setup__/waitFor';
 
-        import createChainOfResponsibility from './createChainOfResponsibility';
+        describe('scenario name', () => {
+          type Fn = (x: number, y: number) => number;
 
-        type Props = { children?: never };
+          let fn: jest.Mock<Fn>;
+          let port1: MessagePort;
+          let port2: MessagePort;
+          let rpc: ReturnType<typeof messagePortRPC<Fn>>;
 
-        test('middleware should render', () => {
-          // GIVEN: A middleware return a component that would render "Hello, World!".
-          const { Provider, Proxy } = createChainOfResponsibility<undefined, Props>();
+          // GIVEN: Stub to perform summation.
+          beforeEach(async () => {
+            ({ port1, port2 } = new MessageChannel());
 
-          // WHEN: Render <Proxy>.
-          const App = () => (
-            <Provider middleware={[() => () => () => () => <Fragment>Hello, World!</Fragment>]}>
-              <Proxy />
-            </Provider>
-          );
+            fn = jest.fn<Fn>((x, y) => x + y);
 
-          const result = render(<App />);
+            messagePortRPC<Fn>(port1, fn);
+            rpc = messagePortRPC<Fn>(port2);
+          });
 
-          // THEN: It should render "Hello, World!".
-          expect(result.container).toHaveProperty('textContent', 'Hello, World!');
+          afterEach(() => {
+            port1?.close();
+            port2?.close();
+          });
+
+          describe('when called with 1 and 2', () => {
+            let promise: Promise<number>;
+
+            // WHEN: Called with 1 and 2.
+            beforeEach(() => {
+              promise = rpc(1, 2);
+            });
+
+            // THEN: Should have called the server stub.
+            test('should call the server stub', () => waitFor(() => expect(fn).toBeCalledTimes(1)));
+
+            // THEN: Should return 3.
+            test('should resolve 3', () => waitFor(() => expect(promise).resolves.toBe(3)));
+          });
         });
+
   - type: input
     attributes:
       label: Coding sandbox URL

@@ -114,11 +114,11 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
 
 ### Why use a dedicated `MessagePort`?
 
-Instead of multiplexing multiple messages into a single `MessagePort`, a dedicated `MessagePort` simplifies the code, and easier to secure the channel.
+Instead of multiplexing multiple messages into a single `MessagePort`, a dedicated `MessagePort` simplifies the code, easier to secure the channel, and eliminates crosstalks.
 
 Internally, for every RPC call, we create a new pair of `MessagePort`. The result of the call is passed through the `MessagePort`. After the call is resolved/rejected/aborted, the `MessagePort` will be shutdown.
 
-Also, with a new pair of `MessagePort`, messages are queued until the event listener call [`MessagePort.start()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/start). In other words, with dedicated `MessagePort`, calls are less likely to get lost due to false-start.
+With a new pair of `MessagePort`, messages are queued until the event listener call [`MessagePort.start()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/start). In other words, with dedicated `MessagePort`, calls are less likely to get lost due to false-start.
 
 ### What can be passed as arguments and return value?
 
@@ -132,13 +132,13 @@ No, because the `this` context is commonly a class object. [Structured Clone Alg
 
 ### Why hosting a single function vs. multiple functions?
 
-We think a single function is much simpler, less responsibility, and more flexible.
+We think a single function is much simpler, less responsibility, and more flexible approach.
 
 To create a pool of RPC stubs, you should create multiple `MessagePort` and send it through an initializer RPC stub. The receiver side receiving these ports should set up RPC stubs for each of the port, registering their respective subroutine.
 
 ### Can I call from the other side too?
 
-Yes, our implementation supports bidirectional calls over a pair of `MessagePort`. You can register a different function on both sides and call from the other side.
+Yes, our implementation supports bidirectional asymmetrical calls over a pair of `MessagePort`. You can register different functions on both sides and call from the other side.
 
 ```ts
 // On main thread:
@@ -146,7 +146,7 @@ Yes, our implementation supports bidirectional calls over a pair of `MessagePort
 // - the return value is the stub of the worker, which is a sum function.
 const sum = messagePortRPC<Fn>(port1, (x ** y) => x ** y);
 
-await sum(1, 2); // 3
+await sum(1, 2); // 1 + 2 = 3
 ```
 
 ```ts
@@ -156,13 +156,13 @@ await sum(1, 2); // 3
 addEventListener('message', ({ ports }) => {
   const power = messagePortRPC<Fn>(ports[0], (x + y) => x + y);
 
-  await power(3, 4); // 81
+  await power(3, 4); // 3 ** 4 = 81
 });
 ```
 
 ### Do I need to sequence the calls myself?
 
-No, you don't need to wait for the call to return before making another call. Internally, all calls are isolated by their own pair of `MessagePort`.
+No, you don't need to wait for the call to return before making another call. Internally, all calls are isolated by their own pair of `MessagePort` and processed asynchronously.
 
 ### Can I send `Error` object?
 
@@ -179,15 +179,15 @@ Object.prototype.toString.call(obj) === '[object Error]'; // True.
 
 Alternatively, you can recreate the error object.
 
-### Can I provide my own marshal/unmarshal function?
+### Can I provide my own marshalling function?
 
-No, we do not support custom marshal/unmarshal function.
+No, we do not support marshalling function.
 
-Alternatively, you can wrap `MessagePort` and add your own marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions on both sides of the port.
+Alternatively, you can channel `MessagePort` to a pair of marshal and unmarshal functions. Make sure you implement both marshal and unmarshal functions on both sides of the port.
 
 ### Can I offload a Redux store or `useReducer` to a Web Worker?
 
-Yes, you could offload them to a Web Worker. Some notes to take:
+Yes, you can offload them to a Web Worker. Some notes to take:
 
 - action and state must be serializable through [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
   - no classes, functions, DOM elements, no thunk, etc.
@@ -196,9 +196,11 @@ Yes, you could offload them to a Web Worker. Some notes to take:
 
 You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
 
+We will eventually made them available.
+
 ### How can I stop the stub from listening to a port?
 
-You should close the port.
+You should close the port by calling [`MessagePort.close()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/close).
 
 The port for the stub must be dedicated to RPC and not to be reused. When you need to stop the stub from listening to a port, you should simply close the port.
 
@@ -207,9 +209,9 @@ The port for the stub must be dedicated to RPC and not to be reused. When you ne
 We are professional developers. Our philosophy makes this package easy to use.
 
 - Standards: we use [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort) and [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) as-is
-- Airtight: we wrap everything in their own `MessagePort`, no multiplexing = no leaking
+- Airtight: we wrap everything in their own `MessagePort`, no multiplexing = no crosstalks
 - Small scope: one `MessagePort` host one function only, more flexibility on building style
-- Simple: you know how to write it
+- Simple: you almost know how to write this package
 - Maintainability: we relies heavily on tooling and automation to maintain this package
 
 ## Contributions
