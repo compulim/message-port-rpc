@@ -10,11 +10,31 @@ By converting a `MessagePort` into an RPC stub, we can easily offload a Promise 
 
 ## How to use
 
-Make sure the `MessagePort` used for RPC is dedicated and not started. No other listeners or posters should be using the same `MessagePort`.
+Make sure the pair of `MessagePort` used for RPC is dedicated and not started. No other RPC, listeners, or posters should be using the same pair.
 
-It is highly recommended to create a new [`MessageChannel`](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) and convert the new pair into RPC stubs.
+It is highly recommended to create a new [`MessageChannel`](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) and convert them into RPC stubs.
 
-### On main thread
+### Server stub
+
+```ts
+import { messagePortRPC } from 'message-port-rpc';
+
+messagePortRPC(port1, (x, y) => x + y);
+```
+
+### Client stub
+
+```ts
+import { messagePortRPC } from 'message-port-rpc';
+
+const rpc = messagePortRPC(port2);
+
+await rpc(1, 2); // 3.
+```
+
+## Web Worker example
+
+### On main thread (client stub)
 
 Creates a new pair of `MessagePort`, pass one of the port to the worker thread, then create a RPC stub on another port.
 
@@ -40,7 +60,7 @@ const callFunction = messagePortRPC<Fn>(port1);
 const result: number = await callFunction(1, 2);
 ```
 
-### On worker thread
+### On worker thread (server stub)
 
 Receives the `MessagePort` and registers an RPC function on the port.
 
@@ -57,11 +77,24 @@ addEventListener('message', ({ ports }) => {
 });
 ```
 
-### Aborting the call
+## Aborting the call
 
 Client can abort an invocation sooner by passing an `AbortSignal` via the `withOptions` function. An `AbortSignal` will be passed to the remote function inside `this` context.
 
-#### On main thread
+In the following example, we assume the client is remotely invoking a `fetch()` function, which supports `AbortSignal` natively.
+
+### Server stub
+
+The following code snippet will use the `AbortSignal` to abort the `fetch()` call.
+
+```ts
+messagePortRPC<Fn>(ports[0], (url: string) => {
+  // During an RPC call, the `AbortSignal` is passed in the `this` context.
+  fetch(url, { signal: this.signal });
+});
+```
+
+### Client stub
 
 The following code snippet will call the stub with additional options to pass an `AbortSignal`.
 
@@ -75,20 +108,11 @@ const fetchPromise = remoteFetch.withOptions({ signal: abortController.signal })
 // Aborts the ongoing call.
 abortController.abort();
 
-// The promise will reject.
+// The promise will reject locally.
 fetchPromise.catch(error => {});
 ```
 
-#### On worker thread
-
-The following code snippet will use the `AbortSignal` to abort the `fetch()` call.
-
-```ts
-messagePortRPC<Fn>(ports[0], (url: string) => {
-  // `AbortSignal` is passed in the `this` context.
-  fetch(url, { signal: this.signal });
-});
-```
+Notes: despite the `AbortSignal` is passed to `fetch()`, when aborted, the rejection will be done locally regardless of the `fetch()` call.
 
 ## API
 
