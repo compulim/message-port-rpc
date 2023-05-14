@@ -140,7 +140,7 @@ function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
 
 ### Why use a dedicated `MessagePort`?
 
-Instead of multiplexing multiple messages into a single `MessagePort`, a dedicated `MessagePort` simplifies the code, easier to secure the channel, and eliminates crosstalks.
+Instead of multiplexing multiple calls into a single `MessagePort`, a dedicated `MessagePort` simplifies the code, easier to secure and audit the channel, and eliminates crosstalk.
 
 Internally, for every RPC call, we create a new pair of `MessagePort`. The result of the call is passed through the `MessagePort`. After the call is resolved/rejected/aborted, the `MessagePort` will be shutdown.
 
@@ -154,7 +154,9 @@ In other words, you cannot pass `function` or `class` as an argument or return v
 
 ### Will it pass the `this` context?
 
-No, because the `this` context is commonly a class object. [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) probably will not work in most cases.
+No, because the `this` context is commonly a class object or [`globalThis`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis). [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) probably will not work for most `this`.
+
+If you need to pass `this`, please pass it as an argument.
 
 ### Why hosting a single function vs. multiple functions?
 
@@ -164,7 +166,9 @@ To create a pool of RPC stubs, you should create multiple `MessagePort` and send
 
 ### Can I call from the other side too?
 
-Yes, our implementation supports bidirectional asymmetrical calls over a pair of `MessagePort`. You can register different functions on both sides and call from the other side.
+Yes, our implementation supports bidirectional asymmetrical calls over a single pair of `MessagePort`.
+
+You can register different functions on both sides and call from the other side.
 
 ```ts
 // On main thread:
@@ -188,7 +192,9 @@ addEventListener('message', ({ ports }) => {
 
 ### Do I need to sequence the calls myself?
 
-No, you don't need to wait for the call to return before making another call. Internally, all calls are isolated by their own pair of `MessagePort` and processed asynchronously.
+No, you don't need to wait for the call to return before making another call.
+
+Internally, all calls are isolated by their own pair of `MessagePort` and processed asynchronously.
 
 ### Can I send `Error` object?
 
@@ -222,7 +228,7 @@ Yes, you can offload them to a Web Worker. Some notes to take:
 
 You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
 
-We will eventually made them available.
+We will eventually these React hooks available.
 
 ### How can I stop the stub from listening to a port?
 
