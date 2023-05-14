@@ -242,16 +242,21 @@ describe('send with abort', () => {
   let promise: Promise<number>;
   let rpc: RPC;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     ({ port1, port2 } = new MessageChannel());
 
     abortController = new AbortController();
-    fn = jest.fn();
+    fn = jest.fn(() => new Promise(() => {}));
 
     messagePortRPC(port2, fn);
 
     rpc = messagePortRPC(port1);
     promise = rpc.withOptions([12, 34], { signal: abortController.signal });
+
+    // Catch it once so Node.js don't consider as unhandled rejection.
+    promise.catch(() => {});
+
+    await waitFor(() => expect(fn).toBeCalledTimes(1));
   });
 
   afterEach(() => {
@@ -259,10 +264,22 @@ describe('send with abort', () => {
     port2?.close();
   });
 
-  test('should reject on abort', async () => {
-    abortController.abort();
+  test('signal should not abort initially', async () => {
+    expect(fn.mock.contexts[0]).toHaveProperty('signal.aborted', false);
+  });
 
-    await waitFor(() => expect(promise).rejects.toThrow('Aborted.'));
+  describe('when abort()', () => {
+    beforeEach(() => {
+      abortController.abort();
+    });
+
+    test('should reject on abort', async () => {
+      await waitFor(() => expect(promise).rejects.toThrow('Aborted.'));
+    });
+
+    test('signal should be aborted', async () => {
+      await waitFor(() => expect(fn.mock.contexts[0]).toHaveProperty('signal.aborted', true));
+    });
   });
 });
 

@@ -2,12 +2,14 @@
 
 import type { ReturnValueOfPromise } from './private/types/ReturnValueOfPromise';
 
+const ABORT = 'ABORT';
 const CALL = 'CALL';
 const REJECT = 'REJECT';
 const RESOLVE = 'RESOLVE';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Subroutine = (...args: any[]) => Promise<unknown> | unknown;
+type ServerSubroutine = (this: { signal: AbortSignal }, ...args: any[]) => Promise<unknown> | unknown;
 type RPCCallMessage<T extends Subroutine> = [typeof CALL, ...Parameters<T>];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RPCRejectMessage = [typeof REJECT, any];
@@ -18,7 +20,7 @@ type CallInit = {
   transfer?: Transferable[];
 };
 
-type MessagePortRPCReturnValue<T extends Subroutine> = {
+type Stub<T extends Subroutine> = {
   (...args: Parameters<T>): Promise<ReturnValueOfPromise<ReturnType<T>>>;
 
   /**
@@ -57,27 +59,31 @@ type MessagePortRPCReturnValue<T extends Subroutine> = {
  *
  * @returns A function, when called, will invoke the function on the other side of `MessagePort`.
  */
-export default function messagePortRPC<ClientSubroutine extends Subroutine>(
-  port: MessagePort
-): MessagePortRPCReturnValue<ClientSubroutine>;
+export default function messagePortRPC<C extends Subroutine>(port: MessagePort): Stub<C>;
 
-export default function messagePortRPC<
-  ClientSubroutine extends Subroutine,
-  ServerSubroutine extends Subroutine = ClientSubroutine
->(port: MessagePort, fn: ServerSubroutine): MessagePortRPCReturnValue<ClientSubroutine>;
+export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+  port: MessagePort,
+  fn: S
+): Stub<C>;
 
-export default function messagePortRPC<
-  ClientSubroutine extends Subroutine,
-  ServerSubroutine extends Subroutine = ClientSubroutine
->(port: MessagePort, fn?: ServerSubroutine): MessagePortRPCReturnValue<ClientSubroutine> {
-  type ClientSubroutineParameters = Parameters<ClientSubroutine>;
-  type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<ClientSubroutine>>;
+export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+  port: MessagePort,
+  fn: S,
+  options: { signal: AbortSignal }
+): Stub<C>;
+
+export default function messagePortRPC<C extends Subroutine, S extends ServerSubroutine = C>(
+  port: MessagePort,
+  fn?: S
+): Stub<C> {
+  type ClientSubroutineParameters = Parameters<C>;
+  type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<C>>;
 
   let detached = false;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleMessage = (event: MessageEvent<RPCCallMessage<ServerSubroutine>>): void => {
-    const data = event.data as RPCCallMessage<ServerSubroutine> | undefined;
+  const handleMessage = (event: MessageEvent<RPCCallMessage<S>>): void => {
+    const data = event.data as RPCCallMessage<S> | undefined;
 
     if (Array.isArray(data) && data[0] === CALL) {
       event.stopImmediatePropagation();
@@ -86,8 +92,12 @@ export default function messagePortRPC<
 
       if (fn) {
         (async function () {
+          const abortController = new AbortController();
+
           try {
-            returnPort.postMessage([RESOLVE, await fn(...data.slice(1))]);
+            returnPort.onmessage = ({ data }) => Array.isArray(data) && data[0] === ABORT && abortController.abort();
+
+            returnPort.postMessage([RESOLVE, await fn.call({ signal: abortController.signal }, ...data.slice(1))]);
           } catch (error) {
             returnPort.postMessage([REJECT, error]);
           } finally {
@@ -121,7 +131,7 @@ export default function messagePortRPC<
       const { port1, port2 } = new MessageChannel();
 
       port1.onmessage = event => {
-        const data = event.data as RPCRejectMessage | RPCResolveMessage<ClientSubroutine>;
+        const data = event.data as RPCRejectMessage | RPCResolveMessage<C>;
 
         if (data[0] === RESOLVE) {
           resolve(data[1]);
@@ -133,11 +143,13 @@ export default function messagePortRPC<
       };
 
       init?.signal?.addEventListener('abort', () => {
+        port1.postMessage([ABORT]);
         port1.close();
+
         reject(new Error('Aborted.'));
       });
 
-      const callMessage: RPCCallMessage<ClientSubroutine> = [CALL, ...args];
+      const callMessage: RPCCallMessage<C> = [CALL, ...args];
 
       port.postMessage(callMessage, [port2, ...(init.transfer || [])]);
     });

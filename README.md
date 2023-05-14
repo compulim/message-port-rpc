@@ -53,12 +53,47 @@ addEventListener('message', ({ ports }) => {
 });
 ```
 
+### Aborting the call
+
+Client can abort an invocation sooner by passing an `AbortSignal` via the `withOptions` function. An `AbortSignal` will be passed to the remote function inside `this` context.
+
+#### On main thread
+
+The following code snippet will call the stub with additional options to pass an `AbortSignal`.
+
+```ts
+const abortController = new AbortController();
+const remoteFetch = messagePortRPC(port);
+
+// Calls the stub with arguments in array, and options.
+const fetchPromise = remoteFetch.withOptions(['https://github.com'], { signal: abortController.signal });
+
+// Aborts the ongoing call.
+abortController.abort();
+
+// The promise will reject.
+fetchPromise.catch(error => {});
+```
+
+#### On worker thread
+
+The following code snippet will use the `AbortSignal` to abort the `fetch()` call.
+
+```ts
+messagePortRPC<Fn>(ports[0], (url: string) => {
+  // `AbortSignal` is passed in the `this` context.
+  fetch(url, { signal: this.signal });
+});
+```
+
 ## API
+
+The following is simplified view of the API. Please refer to our published typings for the full version.
 
 ```ts
 function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
   port: MessagePort,
-  fn?: T
+  fn?: (this: { signal: AbortSignal }, ...args: any[]) => Promise<unknown>
 ): {
   (...args: Parameters<T>): ReturnType<T>;
 
@@ -89,6 +124,10 @@ Also, with a new pair of `MessagePort`, messages are queued until the event list
 All arguments and return value will be send over the `MessagePort`. The values must be transferable using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
 
 In other words, you cannot pass `function` or `class` as an argument or return value.
+
+### Will it pass the `this` context?
+
+No, because the `this` context is commonly a class object. [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) probably will not work in most cases.
 
 ### Why hosting a single function vs. multiple functions?
 
