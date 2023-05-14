@@ -6,13 +6,13 @@ Turns a [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/Message
 
 Modern web apps often need to deal with multiple JavaScript workers or VMs. The communication channel is often [`MessagePort`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort).
 
-By converting a `MessagePort` into an RPC stub, we can easily offload a Promise function to a different thread.
+By converting a dedicated `MessagePort` into an RPC stub, we can easily offload a Promise function to a different thread.
 
 ## How to use
 
 Make sure the pair of `MessagePort` used for RPC is dedicated and not started. No other RPC, listeners, or posters should be using the same pair.
 
-It is highly recommended to create a new [`MessageChannel`](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) and convert them into RPC stubs.
+It is highly recommended to create a new [`MessageChannel`](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel) and convert them into RPC stub.
 
 ### Server stub
 
@@ -33,6 +33,8 @@ await rpc(1, 2); // 3.
 ```
 
 ## Full Web Worker example
+
+One of the advantage of Web Worker is to offload computation-intensive functions.
 
 ### On main thread (client stub)
 
@@ -76,6 +78,8 @@ addEventListener('message', ({ ports }) => {
   messagePortRPC<Fn>(ports[0], (x, y) => Promise.resolve(x + y));
 });
 ```
+
+If the worker takes time to start, it is okay, no invocations would be lost. Thanks to `MessagePort`, all messages will be queued internally until the other side signals ready to receive.
 
 ## Aborting the call
 
@@ -238,11 +242,11 @@ You can look at sample [`useBindReducer`](https://github.com/compulim/message-po
 
 We will eventually made these React hooks available. Stay tuned.
 
-### How can I stop the stub from listening to a port?
+### How could I stop the stub from listening to a port?
 
-You should close the port by calling [`MessagePort.close()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/close).
+To stop the stub, you should close the port by calling [`MessagePort.close()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/close).
 
-The port for the stub must be dedicated to RPC and not to be reused. When you need to stop the stub from listening to a port, you should simply close the port.
+The port for the stub must be dedicated and not to be reused. When you want to stop the stub from listening to a port, you should simply close the port.
 
 ### Why don't you create `MessagePort` for me?
 
