@@ -32,7 +32,7 @@ const rpc = messagePortRPC(port2);
 await rpc(1, 2); // 3.
 ```
 
-## Web Worker example
+## Full Web Worker example
 
 ### On main thread (client stub)
 
@@ -88,9 +88,11 @@ In the following example, we assume the client is remotely invoking a `fetch()` 
 The following code snippet will use the `AbortSignal` to abort the `fetch()` call.
 
 ```ts
-messagePortRPC<Fn>(ports[0], (url: string) => {
+messagePortRPC(ports[0], async url => {
   // During an RPC call, the `AbortSignal` is passed in the `this` context.
-  fetch(url, { signal: this.signal });
+  const res = await fetch(url, { signal: this.signal });
+
+  // ...
 });
 ```
 
@@ -112,7 +114,7 @@ abortController.abort();
 fetchPromise.catch(error => {});
 ```
 
-Notes: despite the `AbortSignal` is passed to `fetch()`, when aborted, the rejection will be done locally regardless of the `fetch()` call.
+Notes: despite the `AbortSignal` is passed to `fetch()`, when aborted, the rejection will be done locally regardless of the result of the `fetch()` call.
 
 ## API
 
@@ -168,7 +170,7 @@ Yes, our implementation supports bidirectional asymmetrical calls over a pair of
 // On main thread:
 // - a power function is hosted on the port;
 // - the return value is the stub of the worker, which is a sum function.
-const sum = messagePortRPC<Fn>(port1, (x ** y) => x ** y);
+const sum = messagePortRPC(port1, (x ** y) => x ** y);
 
 await sum(1, 2); // 1 + 2 = 3
 ```
@@ -178,7 +180,7 @@ await sum(1, 2); // 1 + 2 = 3
 // - a sum function is hosted on the port;
 // - the return value is the stub of the main thread, which is a power function.
 addEventListener('message', ({ ports }) => {
-  const power = messagePortRPC<Fn>(ports[0], (x + y) => x + y);
+  const power = messagePortRPC(ports[0], (x + y) => x + y);
 
   await power(3, 4); // 3 ** 4 = 81
 });
