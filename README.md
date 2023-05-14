@@ -251,6 +251,7 @@ We understood there are hassles to create `MessagePort` yourself.
 We spent a lot of time experimenting with different options and landed on this design for several reasons:
 
 - you own the resources and control the lifetime of the resources, less likely to resources leak
+- you do not need to create the stub before sending the port to the other side
 - you can control which side creates the ports and do not need to pipe them yourself
 - you can build marshal/unmarshal function without too much piping
 - you can build a `MessagePort`-like custom channel without extra piping
