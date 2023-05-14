@@ -24,7 +24,7 @@ type Stub<T extends Subroutine> = {
   (...args: Parameters<T>): Promise<ReturnValueOfPromise<ReturnType<T>>>;
 
   /**
-   * Detaches from the port. Future calls to the port will not be handled.
+   * EXPERIMENTAL: Detaches from the port. Future calls to the port will not be handled.
    *
    * `MessagePort` should not be reused after detach. This is because the port has already started.
    */

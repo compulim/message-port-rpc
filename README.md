@@ -93,7 +93,7 @@ The following is simplified view of the API. Please refer to our published typin
 ```ts
 function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
   port: MessagePort,
-  fn?: (this: { signal: AbortSignal }, ...args: any[]) => Promise<unknown>
+  fn?: (this: { signal: AbortSignal }, ...args: Parameters<T>) => ReturnType<T>
 ): {
   (...args: Parameters<T>): ReturnType<T>;
 
@@ -194,6 +194,14 @@ Yes, you could offload them to a Web Worker. Some notes to take:
   - no DOM access, etc.
 
 You can look at sample [`useBindReducer`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/app/useBindReducer.ts) and [`useReducerSource`](https://github.com/compulim/message-port-rpc/tree/main/packages/pages/src/iframe/useReducerSource.ts) to see how it work.
+
+### When should I call `detach()`?
+
+> This is an experimental feature.
+
+In most cases, you should not need to call `detach()`.
+
+The `detach()` function is designed to detach the stub from the `MessagePort` without closing it. In most cases, you should not reuse the `MessagePort`. If the `MessagePort` is already opened, it will no longer queue up messages. Thus, remote invocations could be lost.
 
 ### Why should I use this implementation of RPC?
 
