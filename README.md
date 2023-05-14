@@ -244,6 +244,24 @@ You should close the port by calling [`MessagePort.close()`](https://developer.m
 
 The port for the stub must be dedicated to RPC and not to be reused. When you need to stop the stub from listening to a port, you should simply close the port.
 
+### Why don't you create `MessagePort` for me?
+
+We understood there are hassles to create `MessagePort` yourself.
+
+We spent a lot of time experimenting with different options and landed on this design for several reasons:
+
+- you own the resources and control the lifetime of the resources, less likely to resources leak
+- you can control which side creates the ports and do not need to pipe them yourself
+- you can build marshal/unmarshal function without too much piping
+- you can build a custom channel (`MessagePort`-like) without too much piping
+
+There are downsides:
+
+- you forget to dedicate the `MessagePort` to a stub
+- you need to write one more line of code
+
+At the end of the day, we think channel customization outweighted the disadvantages and made a bet on this design.
+
 ### Why should I use this implementation of RPC?
 
 We are professional developers. Our philosophy makes this package easy to use.
