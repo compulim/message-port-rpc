@@ -4,11 +4,12 @@ import type { Dispatch, FormEventHandler, ReducerAction, ReducerState } from 're
 import type { Reducer } from './types';
 
 type Props = {
+  autoFocus?: boolean;
   dispatch: Dispatch<ReducerAction<Reducer>>;
   state: ReducerState<Reducer>;
 };
 
-const TextBox = ({ dispatch, state }: Props) => {
+const TextBox = ({ autoFocus, dispatch, state }: Props) => {
   const handleInput = useCallback<FormEventHandler<HTMLInputElement>>(
     ({ currentTarget: { value } }) =>
       dispatch({
@@ -18,7 +19,7 @@ const TextBox = ({ dispatch, state }: Props) => {
     [dispatch]
   );
 
-  return <input autoFocus={true} onInput={handleInput} value={state.textValue} />;
+  return <input autoFocus={autoFocus} onInput={handleInput} value={state.textValue} />;
 };
 
 export default TextBox;

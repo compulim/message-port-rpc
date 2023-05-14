@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "npm run build:typescript && npm run build:esbuild",
-    "build:esbuild": "esbuild --bundle --entry-names=[dir]/[ext]/main --minify --outdir=./public/static/ ./src/app/index.tsx ./src/iframe/index.tsx ./src/worker/index.ts",
+    "build:esbuild": "esbuild --bundle --entry-names=[dir]/[ext]/main --minify --outdir=./public/static/ --sourcemap ./src/app/index.tsx ./src/iframe/index.tsx ./src/worker/index.ts",
     "build:typescript": "tsc --project ./src/tsconfig.json",
     "bump": "npm run bump:prod && npm run bump:dev && npm run bump:auditfix",
     "bump:auditfix": "npm audit fix || exit 0",
@@ -26,7 +26,8 @@
   "dependencies": {
     "message-port-rpc": "file:../message-port-rpc/message-port-rpc-0.0.0-0.tgz",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "use-ref-from": "^0.0.2"
   },
   "localPeerDependencies": {
     "message-port-rpc": "file:../message-port-rpc/message-port-rpc-0.0.0-0.tgz"

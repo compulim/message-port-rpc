@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import React, { FormEventHandler, useCallback, useMemo, useReducer, useRef, useState } from 'react';
 
 import TextBox from '../common/TextBox';
 import useBindReducer from './useBindReducer';
 
 import type { Reducer } from '../common/types';
-import type { ReducerAction, ReducerState } from 'react';
+import type { ReactEventHandler, ReducerAction, ReducerState } from 'react';
 
 const ReducerDemo = () => {
-  const [messageChannel, setMessageChannel] = useState<MessageChannel>();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const reducer = useCallback((state: ReducerState<Reducer>, action: ReducerAction<Reducer>) => {
     if (action.type === 'SET_TEXT_VALUE') {
@@ -17,39 +16,43 @@ const ReducerDemo = () => {
     return state;
   }, []);
 
-  const [state, dispatch] = useReducer<Reducer, ReducerState<Reducer>>(reducer, { textValue: '' }, init => init);
+  const [state1, dispatch1] = useReducer<Reducer, ReducerState<Reducer>>(reducer, { textValue: 'Hello' }, init => init);
+  const [state2, dispatch2] = useReducer<Reducer, ReducerState<Reducer>>(reducer, { textValue: 'World' }, init => init);
 
-  useEffect(() => {
-    const { current: iframe } = iframeRef;
+  const port1 = useBindReducer<Reducer>(state1, dispatch1);
+  const port2 = useBindReducer<Reducer>(state2, dispatch2);
 
-    if (!iframe) {
-      return;
-    }
-
-    const handleLoad = () => setMessageChannel(new MessageChannel());
-
-    iframe.addEventListener('load', handleLoad);
-
-    return () => iframe.removeEventListener('load', handleLoad);
-  }, []);
-
-  useMemo(
-    // TODO: Fix security.
-    () => messageChannel && iframeRef.current?.contentWindow?.postMessage(undefined, '*', [messageChannel?.port1]),
-    [iframeRef, messageChannel]
+  const handleIFrameLoad = useCallback<ReactEventHandler<HTMLIFrameElement>>(
+    ({ currentTarget }) => currentTarget.contentWindow?.postMessage(undefined, '*', [port1, port2]),
+    [port1, port2]
   );
-
-  useBindReducer<Reducer>(state, dispatch, messageChannel?.port2);
 
   return (
     <div>
       <h1>Reducer demo</h1>
       <div>
-        <p>The text box is connected to a reducer.</p>
-        <TextBox dispatch={dispatch} state={state} />
+        <p>These text boxes are connected to separate reducer.</p>
+        <p>
+          <label>
+            First text box:{' '}
+            <TextBox autoFocus={true} dispatch={dispatch1} state={state1} />
+          </label>
+        </p>
+        <p>
+          <label>
+            Second text box:{' '}
+            <TextBox dispatch={dispatch2} state={state2} />
+          </label>
+        </p>
       </div>
       <br />
-      <iframe ref={iframeRef} src="./iframe.html" title="inner frame"></iframe>
+      <iframe
+        onLoad={handleIFrameLoad}
+        ref={iframeRef}
+        src="./iframe.html"
+        style={{ height: 400 }}
+        title="inner frame"
+      ></iframe>
     </div>
   );
 };
