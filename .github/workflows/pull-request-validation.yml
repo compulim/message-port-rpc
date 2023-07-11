@@ -1,15 +1,13 @@
-name: Publish release on push tag
+name: Pull request validation
 
 on:
-  push:
-    tags: 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
 
 jobs:
   call-workflow:
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    uses: compulim/workflows/.github/workflows/publish-release.yml@main
+    uses: compulim/workflows/.github/workflows/pull-request-validation.yml@main
     with:
       package-name: message-port-rpc
+      skip-integration-test: true
