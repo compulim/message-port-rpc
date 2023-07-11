@@ -1,6 +1,6 @@
 {
   "name": "message-port-rpc-root",
-  "version": "1.0.0",
+  "version": "1.0.1-0",
   "description": "Turns a MessagePort into RPC stub.",
   "private": true,
   "author": "William Wong (https://github.com/compulim)",
