@@ -5,11 +5,9 @@
       "@babel/preset-env",
       {
         "modules": "commonjs",
-        "targets": {
-          "ie": "11"
-        }
+        "targets": { "node": "16" }
       }
     ]
   ],
-  "sourceMaps": "inline"
+  "sourceMaps": true
 }

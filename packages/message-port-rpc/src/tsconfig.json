@@ -2,9 +2,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "jsx": "react",
-    "moduleResolution": "nodenext",
-    "skipLibCheck": true, // "@jest/environment" has internal conflicts on their types
-    "strict": true,
-    "target": "ESNext"
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true
   }
 }

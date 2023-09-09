@@ -3,10 +3,9 @@
     "esModuleInterop": true,
     "jsx": "react",
     "lib": ["DOM", "ESNext"],
-    "moduleResolution": "nodenext",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "strict": true,
     "target": "ESNext"
-  },
-  "exclude": ["**/*.spec.*", "**/*.test.*"]
+  }
 }
