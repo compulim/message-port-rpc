@@ -88,6 +88,10 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
 
       const [returnPort] = event.ports;
 
+      if (!returnPort) {
+        throw new Error('RPCCallMessage must contains a port.');
+      }
+
       if (fn) {
         (async function () {
           const abortController = new AbortController();
