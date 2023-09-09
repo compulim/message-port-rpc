@@ -1,4 +1,4 @@
-import type { Reducer as ReactReducer, ReducerAction } from 'react';
+import type { Reducer as ReactReducer } from 'react';
 
 type Action = {
   payload: { value: string };
