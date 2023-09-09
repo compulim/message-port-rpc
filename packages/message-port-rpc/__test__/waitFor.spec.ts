@@ -94,11 +94,8 @@ describe('when wait for', () => {
   });
 
   describe('async function which never resolve/reject', () => {
-    let numCall: number;
-
     beforeEach(async () => {
       callAt = [];
-      numCall = 0;
 
       fn = jest.fn(() => {
         callAt.push(Date.now());
