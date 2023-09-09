@@ -178,7 +178,7 @@ describe('send transferables', () => {
     });
 
     test('should pass ArrayBuffer', () => {
-      const arrayBuffer = fn.mock.calls[0][0];
+      const arrayBuffer = fn.mock.calls[0]?.[0];
 
       expect(arrayBuffer).toBeInstanceOf(ArrayBuffer);
 
@@ -188,7 +188,7 @@ describe('send transferables', () => {
     });
 
     test('should pass MessagePort', async () => {
-      const receivePort = fn.mock.calls[0][1];
+      const receivePort = fn.mock.calls[0]?.[1];
 
       expect(receivePort).toBeInstanceOf(MessagePort);
 
