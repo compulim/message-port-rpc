@@ -1,9 +1,9 @@
-import React, { FormEventHandler, useCallback, useEffect, useState } from 'react';
+import React, { FormEventHandler, useCallback, useState } from 'react';
 
 import TextBoxFromPort from './TextBoxFromPort';
 
 type Props = {
-  ports: readonly MessagePort[];
+  ports: readonly [MessagePort, MessagePort];
 };
 
 const App = ({ ports }: Props) => {

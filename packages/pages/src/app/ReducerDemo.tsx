@@ -1,4 +1,4 @@
-import React, { FormEventHandler, useCallback, useMemo, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useReducer, useRef } from 'react';
 
 import TextBox from '../common/TextBox';
 import useBindReducer from './useBindReducer';
@@ -34,14 +34,12 @@ const ReducerDemo = () => {
         <p>These text boxes are connected to separate reducer.</p>
         <p>
           <label>
-            First text box:{' '}
-            <TextBox autoFocus={true} dispatch={dispatch1} state={state1} />
+            First text box: <TextBox autoFocus={true} dispatch={dispatch1} state={state1} />
           </label>
         </p>
         <p>
           <label>
-            Second text box:{' '}
-            <TextBox dispatch={dispatch2} state={state2} />
+            Second text box: <TextBox dispatch={dispatch2} state={state2} />
           </label>
         </p>
       </div>

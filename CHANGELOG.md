@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updates `tsconfig.json` to extend from [`@tsconfig/strictest`](https://npmjs.com/package/@tsconfig/strictest), by [@compulim](https://github.com/compulim), in PR [#8](https://github.com/compulim/message-port-rpc/pull/8)
+- Updates `tsconfig.json` to extend from [`@tsconfig/strictest`](https://npmjs.com/package/@tsconfig/strictest), by [@compulim](https://github.com/compulim), in PR [#8](https://github.com/compulim/message-port-rpc/pull/8) and PR [#9](https://github.com/compulim/message-port-rpc/pull/9)
 
 ### Fixed
 
