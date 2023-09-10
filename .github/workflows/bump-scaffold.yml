@@ -1,0 +1,23 @@
+name: Bump scaffold
+
+on:
+  workflow_dispatch:
+    inputs:
+      package-name:
+        default: message-port-rpc
+        description: Name of the package
+        required: true
+        type: string
+      use-react:
+        default: false
+        description: Use React
+        required: true
+        type: boolean
+
+jobs:
+  call-workflow:
+    secrets: inherit
+    uses: compulim/workflows/.github/workflows/bump-scaffold.yml@main
+    with:
+      package-name: message-port-rpc
+      use-react: false
