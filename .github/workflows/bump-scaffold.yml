@@ -13,6 +13,11 @@ on:
         description: Use React
         required: true
         type: boolean
+      skip-integration-test:
+        default: true
+        description: Skip integration test
+        required: true
+        type: boolean
 
 jobs:
   call-workflow:
