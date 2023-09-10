@@ -5,7 +5,9 @@
       "@babel/preset-env",
       {
         "modules": "commonjs",
-        "targets": { "node": "16" }
+        "targets": {
+          "node": "16"
+        }
       }
     ]
   ],
