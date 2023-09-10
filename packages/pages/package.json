@@ -3,7 +3,7 @@
   "version": "0.0.0-0",
   "description": "",
   "scripts": {
-    "build": "esbuild --bundle --entry-names=[name]/[ext]/main --minify --outdir=./public/static/ --sourcemap app=./src/app/index.tsx",
+    "build": "esbuild --bundle --entry-names=[name]/[ext]/main --minify --outdir=./public/static/ --sourcemap app=./src/app/index.tsx iframe=./src/iframe/index.tsx worker=./src/worker/index.ts",
     "bump": "npm run bump:prod && npm run bump:dev && npm run bump:auditfix",
     "bump:auditfix": "npm audit fix || exit 0",
     "bump:dev": "PACKAGES_TO_BUMP=$(cat package.json | jq -r '.localPeerDependencies // {} as $L | .devDependencies // {} | to_entries | map(select(.key as $K | $L | has($K) | not)) | map(.key + \"@latest\") | join(\" \")') && [ ! -z \"$PACKAGES_TO_BUMP\" ] && npm install $PACKAGES_TO_BUMP",
@@ -15,6 +15,9 @@
   },
   "author": "William Wong (https://github.com/compulim)",
   "license": "MIT",
+  "localPeerDependencies": {
+    "message-port-rpc": "^0.0.0-0"
+  },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.2",
     "@types/react": "^18.2.21",
@@ -23,12 +26,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "message-port-rpc": "file:../message-port-rpc/message-port-rpc-0.0.0-0.tgz",
+    "message-port-rpc": "^0.0.0-0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "use-ref-from": "0.0.2"
-  },
-  "localPeerDependencies": {
-    "message-port-rpc": "file:../message-port-rpc/message-port-rpc-0.0.0-0.tgz"
   }
 }
