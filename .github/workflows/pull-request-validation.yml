@@ -10,4 +10,4 @@ jobs:
     uses: compulim/workflows/.github/workflows/pull-request-validation.yml@main
     with:
       package-name: message-port-rpc
-      skip-integration-test: true
+      skip-integration-test: $skip-integration-test
