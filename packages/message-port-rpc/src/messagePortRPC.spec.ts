@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-import createDeferred from '../__test__/__setup__/createDeferred';
+import createDeferred from '../__tests__/__setup__/createDeferred';
 import messagePortRPC from './messagePortRPC';
-import waitFor from '../__test__/__setup__/waitFor';
+import waitFor from '../__tests__/__setup__/waitFor';
 
 type Fn = (x: number, y: number) => Promise<number>;
 type MockFn = jest.Mock<Fn>;
