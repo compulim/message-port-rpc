@@ -1,5 +1,5 @@
 import { messagePortRPC } from 'message-port-rpc';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ReducerDemo from './ReducerDemo';
 
