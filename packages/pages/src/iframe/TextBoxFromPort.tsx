@@ -1,4 +1,4 @@
-import React, { type ReducerState } from 'react';
+import { type ReducerState } from 'react';
 
 import TextBox from '../common/TextBox';
 import useReducerSource from './useReducerSource';

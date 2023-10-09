@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useRef } from 'react';
+import { useCallback, useReducer, useRef } from 'react';
 
 import TextBox from '../common/TextBox';
 import useBindReducer from './useBindReducer';
