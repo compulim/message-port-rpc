@@ -66,22 +66,22 @@
   "homepage": "https://github.com/compulim/message-port-rpc#readme",
   "pinDependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.23.0",
-    "@babel/core": "^7.23.0",
-    "@babel/plugin-transform-runtime": "^7.22.15",
-    "@babel/preset-env": "^7.22.20",
-    "@babel/preset-typescript": "^7.23.0",
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.6",
+    "@babel/plugin-transform-runtime": "^7.23.6",
+    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-typescript": "^7.23.3",
     "@jest/globals": "^29.7.0",
     "@tsconfig/recommended": "^1.0.3",
     "@tsconfig/strictest": "^2.0.2",
-    "@types/jest": "^29.5.5",
-    "@types/node": "^20.8.3",
-    "esbuild": "^0.19.4",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.4",
+    "esbuild": "^0.19.9",
     "jest": "^29.7.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.23.1"
+    "@babel/runtime-corejs3": "^7.23.6"
   }
 }
