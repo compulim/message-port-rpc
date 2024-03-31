@@ -1,4 +1,7 @@
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+// eslint-disable-next-line react/no-deprecated
+import { render } from 'react-dom';
+// import { createRoot } from 'react-dom/client';
 
 import App from './App';
 
@@ -12,5 +15,5 @@ window.addEventListener('message', ({ ports }) => {
   // TODO: Check origin.
   const mainElement = document.getElementsByTagName('main')[0];
 
-  mainElement && createRoot(mainElement).render(<App ports={Object.freeze([firstPort, secondPort] as const)} />);
+  mainElement && render(<App ports={Object.freeze([firstPort, secondPort] as const)} />, mainElement);
 });

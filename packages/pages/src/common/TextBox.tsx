@@ -1,6 +1,5 @@
-import { useCallback } from 'react';
+import React, { useCallback, type Dispatch, type FormEventHandler, type ReducerAction, type ReducerState } from 'react';
 
-import type { Dispatch, FormEventHandler, ReducerAction, ReducerState } from 'react';
 import type { Reducer } from './types';
 
 type Props = {

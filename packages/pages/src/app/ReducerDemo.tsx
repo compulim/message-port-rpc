@@ -1,10 +1,16 @@
-import { useCallback, useReducer, useRef } from 'react';
+import React, {
+  useCallback,
+  useReducer,
+  useRef,
+  type ReactEventHandler,
+  type ReducerAction,
+  type ReducerState
+} from 'react';
 
 import TextBox from '../common/TextBox';
 import useBindReducer from './useBindReducer';
 
 import type { Reducer } from '../common/types';
-import type { ReactEventHandler, ReducerAction, ReducerState } from 'react';
 
 const ReducerDemo = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
