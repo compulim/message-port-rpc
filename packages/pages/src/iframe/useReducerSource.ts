@@ -1,7 +1,15 @@
 import { messagePortRPC } from 'message-port-rpc';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-import type { Dispatch, Reducer, ReducerAction, ReducerState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type Reducer,
+  type ReducerAction,
+  type ReducerState
+} from 'react';
 
 // TODO: Add overloaded types to support:
 // - Reducer vs. ReducerStateWithoutAction
