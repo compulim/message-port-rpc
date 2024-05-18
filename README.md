@@ -120,23 +120,53 @@ fetchPromise.catch(error => {});
 
 Notes: despite the `AbortSignal` is passed to `fetch()`, when aborted, the rejection will be done locally regardless of the result of the `fetch()` call.
 
+## Generators and iterators
+
+Generators and iterators are supported. This helps iterating large set of data without sending it over.
+
+`Generator` and `Iterator` are automatically converted to `AsyncGenerator` and `AsyncIterator` respectively.
+
+```ts
+const { port1, port2 } = new MessageChannel();
+const iterateValues = (): Iterator<number> => [1, 2, 3].values();
+
+forGenerator<Fn>(port2, iterateValues);
+
+iterateValuesRemote = forGenerator<Fn>(port1);
+
+for await (const value of iterateValuesRemote()) {
+  console.log(value); // Will print 1, 2, 3.
+}
+```
+
+Notes: if you use `next()` to iterate instead of for-loop, and did not reach `{ done: true }`, you will need to use `withOptions({ signal: AbortSignal })` to dispose underlying ports properly. [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management) will help remove this requirement.
+
 ## API
 
 The following is simplified version of the API. Please refer to our published typings for the full version.
 
 ```ts
-function messagePortRPC<T extends (...args: any[]) => Promise<unknown>>(
+function messagePortRPC<T extends (...args: unknown[]) => Promise<unknown>>(
   port: MessagePort,
   fn?: (this: { signal: AbortSignal }, ...args: Parameters<T>) => ReturnType<T>
 ): {
-  (...args: Parameters<T>): ReturnType<T>;
+  (...args: Parameters<T>): Promise<ReturnType<T>>;
 
-  withOptions: (
-    init: {
-      signal?: AbortSignal;
-      transfer?: Transferable[];
-    }
-  ) => T;
+  withOptions: (init: { signal?: AbortSignal; transfer?: Transferable[] }) => (...args: Parameters<T>): Promise<ReturnType<T>>;
+};
+
+function forGenerator<
+  T extends (...args: unknown[]) => Promise<Generator<TYield, TReturn, TNext>>,
+  TYield = unknown,
+  TReturn = any,
+  TNext = unknown
+>(
+  port: MessagePort,
+  fn?: t
+): {
+  (...args: Parameters<T>): AsyncGenerator<TYield, TReturn, TNext>;
+
+  withOptions: (init: { signal?: AbortSignal; transfer?: Transferable[] }) => (...args: Parameters<T>): AsyncGenerator<TYield, TReturn, TNext>;
 };
 ```
 
