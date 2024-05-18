@@ -15,8 +15,8 @@ type RPCRejectMessage = [typeof REJECT, any];
 type RPCResolveMessage<T extends Subroutine> = [typeof RESOLVE, ReturnValueOfPromise<ReturnType<T>>];
 
 type CallInit = {
-  signal?: AbortSignal;
-  transfer?: Transferable[];
+  signal?: AbortSignal | undefined;
+  transfer?: readonly Transferable[] | undefined;
 };
 
 // Regardless whether T returns Promise or not, the client stub must return Promise.
@@ -38,6 +38,7 @@ type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args:
  * Binds a function to a `MessagePort` in RPC fashion and/or create a RPC function stub connected to a `MessagePort`.
  *
  * In a traditional RPC setting:
+ *
  * - server should call this function with `fn` argument, the returned function should be ignored;
  * - client should call this function without `fn` argument, the returned function is the stub to call the server.
  *
@@ -51,7 +52,7 @@ type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args:
  * @param {MessagePort} port - The `MessagePort` object to send the calls. The underlying `MessageChannel` must be exclusively used by this function only.
  * @param {Function} fn - The function to invoke. If not set, this RPC cannot be invoked by the other side of `MessagePort`.
  *
- * @returns A function, when called, will invoke the function on the other side of `MessagePort`.
+ * @returns An asynchronous function, when called, will invoke the function on the other side of `MessagePort`.
  */
 export default function messagePortRPC<C extends Subroutine>(port: MessagePort): ClientStubWithExtra<C>;
 
@@ -149,9 +150,7 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
           reject(new Error('Aborted.'));
         });
 
-        const callMessage: RPCCallMessage<C> = [CALL, ...args];
-
-        port.postMessage(callMessage, [port2, ...(init.transfer || [])]);
+        port.postMessage([CALL, ...args] satisfies RPCCallMessage<C>, [port2, ...(init.transfer || [])]);
       });
     };
 

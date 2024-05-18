@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Supports generator/iterator functions, by [@compulim](https://github.com/compulim), in PR [#34](https://github.com/compulim/message-port-rpc/pull/34)
+
 ### Changed
 
 - Bumped dependencies, by [@compulim](https://github.com/compulim), in PR [#29](https://github.com/compulim/message-port-rpc/pull/29) and [#30](https://github.com/compulim/message-port-rpc/pull/30)
