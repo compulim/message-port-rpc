@@ -125,8 +125,12 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       const generator = fn(...args);
 
       messagePortRPC(messagePorts.next, generator.next.bind(generator));
+
+      // This is a slight deviation from the actual `Iterator`.
+      // In the original approach, `Iterator.return` is not defined.
+      // In our approach, the client stub does not know if the server stub has `Iterator.return` defined or not, instead, we simply return `{ done: true }`.
       messagePortRPC(messagePorts.return, value => generator.return?.(value) || { done: true });
-      messagePortRPC(messagePorts.throw, error => generator.throw?.(error) || { done: true });
+      messagePortRPC(messagePorts.throw, error => generator.throw?.(error) || Promise.reject(error));
     }
   };
 
