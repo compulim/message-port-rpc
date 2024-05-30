@@ -31,9 +31,7 @@ body:
       multiple: true
       options:
         - 'ESM: import { messagePortRPC } from "message-port-rpc"'
-        - 'ESM: import messagePortRPC from "message-port-rpc/messagePortRPC"'
         - 'CommonJS: require("message-port-rpc")'
-        - 'CommonJS: require("message-port-rpc/messagePortRPC")'
         - Others or unrelated
     validations:
       required: true
