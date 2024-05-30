@@ -3,7 +3,7 @@
   "version": "0.0.0-0",
   "description": "Turns a MessagePort into an remote procedure call (RPC) stub.",
   "files": [
-    "./lib/"
+    "./dist/"
   ],
   "exports": {
     ".": {
