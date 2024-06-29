@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Integration tests ported to mocha for better test conclusiveness, in PR [#XXX](https://github.com/compulim/message-port-rpc/pull/XXX)
+- Integration tests ported to mocha for better test conclusiveness, in PR [#40](https://github.com/compulim/message-port-rpc/pull/40)
 - Bumped dependencies, by [@compulim](https://github.com/compulim), in PR [#29](https://github.com/compulim/message-port-rpc/pull/29), [#30](https://github.com/compulim/message-port-rpc/pull/30), and [#38](https://github.com/compulim/message-port-rpc/pull/38)
    - Production dependencies
       - [`@babel/runtime-corejs3@7.24.1`](https://npmjs.com/package/@babel/runtime-corejs3)
