@@ -1,4 +1,5 @@
-const { messagePortRPC } = require('message-port-rpc');
+import { expect } from 'expect';
+import { messagePortRPC } from 'message-port-rpc';
 
 describe('simple scenario', () => {
   let port1, port2;
@@ -12,7 +13,7 @@ describe('simple scenario', () => {
     port2.close();
   });
 
-  test('should work', async () => {
+  it('should work', async () => {
     const clientStub = messagePortRPC(port1);
 
     messagePortRPC(port2, (x, y) => Promise.resolve(x + y));
