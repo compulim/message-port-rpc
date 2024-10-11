@@ -1,4 +1,4 @@
-import forGenerator from './forGenerator';
-import messagePortRPC from './messagePortRPC';
+import forGenerator from './forGenerator.ts';
+import messagePortRPC from './messagePortRPC.ts';
 
 export { forGenerator, messagePortRPC };
