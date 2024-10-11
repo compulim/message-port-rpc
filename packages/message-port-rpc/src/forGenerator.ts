@@ -1,6 +1,6 @@
 // Naming is from https://www.w3.org/History/1992/nfs_dxcern_mirror/rpc/doc/Introduction/HowItWorks.html.
 
-import messagePortRPC from './messagePortRPC';
+import messagePortRPC from './messagePortRPC.ts';
 
 const GENERATE = 'GENERATOR_GENERATE';
 

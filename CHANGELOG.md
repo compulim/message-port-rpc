@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - [`use-ref-from@0.1.0`](https://npmjs.com/package/use-ref-from/v/0.1.0)
 - Updated pull request validation to test against various React versions, in PR [#33](https://github.com/compulim/message-port-rpc/pull/33)
    - Moved from JSX Runtime to JSX Classic to support testing against React 16
+- Added [ESLint import/export syntax](https://npmjs.com/package/eslint-plugin-import), in PR [#43](https://github.com/compulim/message-port-rpc/pull/43)
+- Added [`publint`](https://npmjs.com/package/publint), in PR [#43](https://github.com/compulim/message-port-rpc/pull/43)
 
 ## [1.0.1] - 2023-10-09
 

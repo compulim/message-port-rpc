@@ -1,6 +1,6 @@
 // Naming is from https://www.w3.org/History/1992/nfs_dxcern_mirror/rpc/doc/Introduction/HowItWorks.html.
 
-import type { ReturnValueOfPromise } from './private/types/ReturnValueOfPromise';
+import { type ReturnValueOfPromise } from './private/types/ReturnValueOfPromise.ts';
 
 const ABORT = 'ABORT';
 const CALL = 'CALL';
