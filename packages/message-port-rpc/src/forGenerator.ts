@@ -133,7 +133,12 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       messagePortRPC(messagePorts.return, value => generator.return?.(value) || { done: true });
       messagePortRPC(messagePorts.throw, error => generator.throw?.(error) || Promise.reject(error));
       messagePortRPC(messagePorts.asyncDispose, async (): Promise<void> => {
-        Symbol.asyncDispose in generator && (await generator[Symbol.asyncDispose]?.());
+        const symbolAsyncDispose: typeof Symbol.asyncDispose = Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose');
+        const symbolDispose: typeof Symbol.dispose = Symbol.dispose || Symbol.for('Symbol.dispose');
+
+        symbolAsyncDispose in generator
+          ? await generator[symbolAsyncDispose]()
+          : symbolDispose in generator && generator[symbolDispose]();
       });
     }
   };
@@ -222,7 +227,9 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         next: (value: NextOfGenerator<ReturnType<C>> | void) => callGenerator(() => nextRPC(value)),
         return: (value: ReturnOfGenerator<ReturnType<C>>) => callGenerator(() => returnRPC(value)),
         throw: (error: unknown) => callGenerator(() => throwRPC(error)),
-        [Symbol.asyncDispose]: () => asyncDisposeGenerator(() => asyncDisposeRPC()),
+        // Ponyfills for Symbol.asyncDispose
+        [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () =>
+          asyncDisposeGenerator(() => asyncDisposeRPC()),
         [Symbol.asyncIterator]: () => generator
       };
 

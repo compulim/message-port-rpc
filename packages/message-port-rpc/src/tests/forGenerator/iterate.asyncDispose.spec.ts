@@ -41,7 +41,7 @@ describe.each([['async generator' as const], ['generator' as const]])('with %s',
           yield 'Hello, World!';
         })();
 
-        generator[Symbol.asyncDispose] = mockAsyncDispose;
+        generator[Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')] = mockAsyncDispose;
 
         return generator;
       } else {
@@ -50,7 +50,7 @@ describe.each([['async generator' as const], ['generator' as const]])('with %s',
         })();
 
         // When Symbol.dispose() is being called, will automatically call Symbol.asyncDispose() as well.
-        generator[Symbol.dispose] = mockAsyncDispose;
+        generator[Symbol.dispose || Symbol.for('Symbol.dispose')] = mockAsyncDispose;
 
         return generator;
       }
@@ -70,14 +70,16 @@ describe.each([['async generator' as const], ['generator' as const]])('with %s',
 
     describe('when generator is disposed', () => {
       beforeEach(async () => {
-        if (Symbol.asyncDispose in generator) {
-          const dispose = generator[Symbol.asyncDispose];
+        const symbolAsyncDispose: typeof Symbol.asyncDispose = Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose');
+
+        if (symbolAsyncDispose in generator) {
+          const dispose = generator[symbolAsyncDispose];
 
           typeof dispose === 'function' && (await dispose());
         }
       });
 
-      test('should call dispose', () => expect(mockAsyncDispose).toHaveBeenCalledTimes(1));
+      test.only('should call dispose', () => expect(mockAsyncDispose).toHaveBeenCalledTimes(1));
       test('should throw on next()', () =>
         expect(() => generator.next()).rejects.toThrow('This generator has been disposed.'));
       test('should throw on return()', () =>

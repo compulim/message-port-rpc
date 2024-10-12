@@ -13,6 +13,9 @@
     "\\.[jt]sx?$": [
       "babel-jest",
       {
+        "plugins": [
+          "@babel/plugin-proposal-explicit-resource-management"
+        ],
         "presets": [
           [
             "@babel/preset-typescript",

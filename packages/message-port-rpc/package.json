@@ -49,6 +49,7 @@
   "homepage": "https://github.com/compulim/message-port-rpc#readme",
   "pinDependencies": {},
   "devDependencies": {
+    "@babel/plugin-proposal-explicit-resource-management": "^7.25.8",
     "@babel/preset-env": "^7.25.8",
     "@babel/preset-typescript": "^7.25.7",
     "@jest/globals": "^29.7.0",
