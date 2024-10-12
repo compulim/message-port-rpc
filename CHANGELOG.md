@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Removed
-
-- 💢 Removed named exports, please import the defaults instead
-   - Use `import { messagePortRPC } from 'message-port-rpc'` instead
-
 ### Added
 
 - Supports generator/iterator functions, by [@compulim](https://github.com/compulim), in PR [#34](https://github.com/compulim/message-port-rpc/pull/34)
@@ -54,6 +49,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Moved from JSX Runtime to JSX Classic to support testing against React 16
 - Added [ESLint import/export syntax](https://npmjs.com/package/eslint-plugin-import), in PR [#43](https://github.com/compulim/message-port-rpc/pull/43)
 - Added [`publint`](https://npmjs.com/package/publint), in PR [#43](https://github.com/compulim/message-port-rpc/pull/43)
+- Bumped dependencies, in PR [#45](https://github.com/compulim/message-port-rpc/pull/45)
+  - Development dependencies
+    - [`@babel/preset-env@7.25.8`](https://npmjs.com/package/@babel/preset-env/v/7.25.8)
+    - [`@babel/preset-typescript@7.25.7`](https://npmjs.com/package/@babel/preset-typescript/v/7.25.7)
+    - [`@tsconfig/recommended@1.0.7`](https://npmjs.com/package/@tsconfig/recommended/v/1.0.7)
+    - [`@types/jest@29.5.13`](https://npmjs.com/package/@types/jest/v/29.5.13)
+    - [`@types/node@22.7.5`](https://npmjs.com/package/@types/node/v/22.7.5)
+    - [`@types/react@18.3.11`](https://npmjs.com/package/@types/react/v/18.3.11)
+    - [`@types/react-dom@18.3.1`](https://npmjs.com/package/@types/react-dom/v/18.3.1)
+    - [`@typescript-eslint/eslint-plugin@8.8.1`](https://npmjs.com/package/@typescript-eslint/eslint-plugin/v/8.8.1)
+    - [`@typescript-eslint/parser@8.8.1`](https://npmjs.com/package/@typescript-eslint/parser/v/8.8.1)
+    - [`esbuild@0.24.0`](https://npmjs.com/package/esbuild/v/0.24.0)
+    - [`eslint@9.12.0`](https://npmjs.com/package/eslint/v/9.12.0)
+    - [`eslint-plugin-prettier@5.2.1`](https://npmjs.com/package/eslint-plugin-prettier/v/5.2.1)
+    - [`eslint-plugin-react@7.37.1`](https://npmjs.com/package/eslint-plugin-react/v/7.37.1)
+    - [`mocha@10.7.3`](https://npmjs.com/package/mocha/v/10.7.3)
+    - [`prettier@3.3.3`](https://npmjs.com/package/prettier/v/3.3.3)
+    - [`tsup@8.3.0`](https://npmjs.com/package/tsup/v/8.3.0)
+    - [`typescript@5.6.3`](https://npmjs.com/package/typescript/v/5.6.3)
+
+### Removed
+
+- 💢 Removed named exports, please import the defaults instead
+   - Use `import { messagePortRPC } from 'message-port-rpc'` instead
 
 ## [1.0.1] - 2023-10-09
 
@@ -92,5 +111,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release
 
+[Unreleased]: https://github.com/compulim/message-port-rpc/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/compulim/message-port-rpc/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/compulim/message-port-rpc/releases/tag/v1.0.0
