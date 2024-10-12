@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Supports generator/iterator functions, by [@compulim](https://github.com/compulim), in PR [#34](https://github.com/compulim/message-port-rpc/pull/34)
-- Supports `AsyncDispose/Dispose` in generator, by [@compulim](https://github.com/compulim), in PR [#45](https://github.com/compulim/message-port-rpc/pull/45)
+- Supports [Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management) (`asyncDispose`/`dispose`/`using`) in generator/iterator functions, by [@compulim](https://github.com/compulim), in PR [#45](https://github.com/compulim/message-port-rpc/pull/45)
 
 ### Changed
 
