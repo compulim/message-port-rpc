@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Breaking changes
+### Removed
 
-- Removed named exports, please import the defaults instead
+- 💢 Removed named exports, please import the defaults instead
    - Use `import { messagePortRPC } from 'message-port-rpc'` instead
-- Moved build tools from Babel to tsup/esbuild
 
 ### Added
 
@@ -19,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- 💢 Moved build tools from Babel to tsup/esbuild
 - Integration tests ported to mocha for better test conclusiveness, in PR [#40](https://github.com/compulim/message-port-rpc/pull/40)
 - Bumped dependencies, by [@compulim](https://github.com/compulim), in PR [#29](https://github.com/compulim/message-port-rpc/pull/29), [#30](https://github.com/compulim/message-port-rpc/pull/30), [#38](https://github.com/compulim/message-port-rpc/pull/38), and [#42](https://github.com/compulim/message-port-rpc/pull/42)
    - Production dependencies
