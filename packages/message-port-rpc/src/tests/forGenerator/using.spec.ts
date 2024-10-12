@@ -76,7 +76,7 @@ describe('assumptions', () => {
     fn = jest.fn();
   });
 
-  test('in await using block, asyncDispose() is preferred over dispose()', () => {
+  test('for await using operator, asyncDispose() is preferred over dispose()', () => {
     (async () => {
       await using _disposable = {
         [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () => Promise.resolve(fn('asyncDispose')),
@@ -88,7 +88,7 @@ describe('assumptions', () => {
     expect(fn).toHaveBeenNthCalledWith(1, 'asyncDispose');
   });
 
-  test('in using block, dispose() is preferred over asyncDispose()', () => {
+  test('for using operator, dispose() is preferred over asyncDispose()', () => {
     (() => {
       using _disposable = {
         [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () => Promise.resolve(fn('asyncDispose')),
@@ -100,7 +100,7 @@ describe('assumptions', () => {
     expect(fn).toHaveBeenNthCalledWith(1, 'dispose');
   });
 
-  test('in await using block, asyncDispose() will be called', () => {
+  test('for await using operator, asyncDispose() will be called', () => {
     (async () => {
       await using _disposable = {
         [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () => Promise.resolve(fn('asyncDispose'))
@@ -111,7 +111,7 @@ describe('assumptions', () => {
     expect(fn).toHaveBeenNthCalledWith(1, 'asyncDispose');
   });
 
-  test('in await using block, dispose() will be called', () => {
+  test('for await using operator, dispose() will be called', () => {
     (async () => {
       await using _disposable = { [Symbol.dispose || Symbol.for('Symbol.dispose')]: () => fn('dispose') };
     })();
@@ -120,7 +120,7 @@ describe('assumptions', () => {
     expect(fn).toHaveBeenNthCalledWith(1, 'dispose');
   });
 
-  test('in using block, dispose() will be called', () => {
+  test('for using operator, dispose() will be called', () => {
     (() => {
       using _disposable = { [Symbol.dispose || Symbol.for('Symbol.dispose')]: () => fn('dispose') };
     })();
