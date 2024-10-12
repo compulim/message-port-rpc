@@ -24,7 +24,7 @@ rules:
   import/exports-last: error
   import/extensions:
     - error
-    - always
+    - ignorePackages # eslint-plugin-import does not understand named import
   import/first: error
   import/newline-after-import: error
   import/no-anonymous-default-export: error

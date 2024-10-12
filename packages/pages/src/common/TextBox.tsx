@@ -1,6 +1,6 @@
 import React, { useCallback, type Dispatch, type FormEventHandler, type ReducerAction, type ReducerState } from 'react';
 
-import type { Reducer } from './types';
+import { type Reducer } from './types.ts';
 
 type Props = {
   autoFocus?: boolean;

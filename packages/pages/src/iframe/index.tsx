@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 // import { createRoot } from 'react-dom/client';
 
-import App from './App';
+import App from './App.tsx';
 
 window.addEventListener('message', ({ ports }) => {
   const [firstPort, secondPort] = ports;

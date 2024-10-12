@@ -1,7 +1,7 @@
 import { messagePortRPC } from 'message-port-rpc';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import ReducerDemo from './ReducerDemo';
+import ReducerDemo from './ReducerDemo.tsx';
 
 type Fn = (x: number, y: number) => Promise<number>;
 
