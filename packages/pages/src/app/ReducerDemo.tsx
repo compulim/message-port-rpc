@@ -7,10 +7,9 @@ import React, {
   type ReducerState
 } from 'react';
 
-import TextBox from '../common/TextBox';
-import useBindReducer from './useBindReducer';
-
-import type { Reducer } from '../common/types';
+import TextBox from '../common/TextBox.tsx';
+import useBindReducer from './useBindReducer.ts';
+import { type Reducer } from '../common/types.ts';
 
 const ReducerDemo = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);

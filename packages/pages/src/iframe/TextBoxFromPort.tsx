@@ -1,9 +1,8 @@
 import React, { type ReducerState } from 'react';
 
-import TextBox from '../common/TextBox';
-import useReducerSource from './useReducerSource';
-
-import type { Reducer } from '../common/types';
+import TextBox from '../common/TextBox.tsx';
+import useReducerSource from './useReducerSource.ts';
+import { type Reducer } from '../common/types.ts';
 
 type Props = {
   port: MessagePort;

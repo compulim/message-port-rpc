@@ -1,8 +1,6 @@
 import { messagePortRPC } from 'message-port-rpc';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type Dispatch, type Reducer, type ReducerAction, type ReducerState } from 'react';
 import { useRefFrom } from 'use-ref-from';
-
-import type { Dispatch, Reducer, ReducerAction, ReducerState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function useBindReducer<R extends Reducer<any, any>>(

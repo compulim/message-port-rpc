@@ -1,6 +1,6 @@
 import React, { useCallback, useState, type FormEventHandler } from 'react';
 
-import TextBoxFromPort from './TextBoxFromPort';
+import TextBoxFromPort from './TextBoxFromPort.tsx';
 
 type Props = {
   ports: readonly [MessagePort, MessagePort];
