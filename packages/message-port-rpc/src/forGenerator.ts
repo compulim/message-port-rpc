@@ -10,6 +10,7 @@ type GeneratorSubroutine = (...args: any[]) => AsyncGenerator | Generator | Asyn
 type RPCGeneratorGenerateMessage<T extends GeneratorSubroutine> = [
   typeof GENERATE,
   Readonly<{
+    asyncDispose: MessagePort;
     next: MessagePort;
     return: MessagePort;
     throw: MessagePort;
@@ -131,6 +132,14 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       // In our approach, the client stub does not know if the server stub has `Iterator.return` defined or not, instead, we simply return `{ done: true }`.
       messagePortRPC(messagePorts.return, value => generator.return?.(value) || { done: true });
       messagePortRPC(messagePorts.throw, error => generator.throw?.(error) || Promise.reject(error));
+      messagePortRPC(messagePorts.asyncDispose, async (): Promise<void> => {
+        const symbolAsyncDispose: typeof Symbol.asyncDispose = Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose');
+        const symbolDispose: typeof Symbol.dispose = Symbol.dispose || Symbol.for('Symbol.dispose');
+
+        symbolAsyncDispose in generator
+          ? await generator[symbolAsyncDispose]()
+          : symbolDispose in generator && generator[symbolDispose]();
+      });
     }
   };
 
@@ -145,6 +154,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
     let checkAborted: (() => void) | undefined;
 
     return (...args: ClientSubroutineParameters) => {
+      const { port1: asyncDisposePort1, port2: asyncDisposePort2 } = new MessageChannel();
       const { port1: nextPort1, port2: nextPort2 } = new MessageChannel();
       const { port1: returnPort1, port2: returnPort2 } = new MessageChannel();
       const { port1: throwPort1, port2: throwPort2 } = new MessageChannel();
@@ -152,6 +162,8 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       const subInit = { signal: init.signal };
 
       const closePorts = () => {
+        asyncDisposePort1.close();
+        asyncDisposePort2.close();
         nextPort1.close();
         nextPort2.close();
         returnPort1.close();
@@ -159,6 +171,8 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         throwPort1.close();
         throwPort2.close();
       };
+
+      const asyncDisposeRPC = messagePortRPC<() => void>(asyncDisposePort1).withOptions(subInit);
 
       const nextRPC =
         messagePortRPC<(next: ClientSubroutineNext | void) => ClientSubroutineIteratorResult>(nextPort1).withOptions(
@@ -196,20 +210,36 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         return result;
       };
 
+      const asyncDisposeGenerator = async (fn: () => Promise<void>): Promise<void> => {
+        checkAborted?.();
+
+        await fn();
+
+        finished = true;
+        closePorts();
+
+        checkAborted = () => {
+          throw new Error('This generator has been disposed.');
+        };
+      };
+
       const generator: AsyncGenerator<ClientSubroutineYield, ClientSubroutineReturn, ClientSubroutineNext> = {
         next: (value: NextOfGenerator<ReturnType<C>> | void) => callGenerator(() => nextRPC(value)),
         return: (value: ReturnOfGenerator<ReturnType<C>>) => callGenerator(() => returnRPC(value)),
         throw: (error: unknown) => callGenerator(() => throwRPC(error)),
+        // Ponyfills for Symbol.asyncDispose
+        [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () =>
+          asyncDisposeGenerator(() => asyncDisposeRPC()),
         [Symbol.asyncIterator]: () => generator
       };
 
       port.postMessage(
         [
           GENERATE,
-          { next: nextPort2, return: returnPort2, throw: throwPort2 },
+          { asyncDispose: asyncDisposePort2, next: nextPort2, return: returnPort2, throw: throwPort2 },
           ...args
         ] satisfies RPCGeneratorGenerateMessage<C>,
-        [...(init.transfer || []), nextPort2, returnPort2, throwPort2]
+        [...(init.transfer || []), asyncDisposePort2, nextPort2, returnPort2, throwPort2]
       );
 
       init.signal?.addEventListener(
