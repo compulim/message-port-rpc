@@ -139,9 +139,9 @@ for await (const value of iterateValuesRemote()) {
 }
 ```
 
-[Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management) is supported. `await using` operator will close underlying ports when the client stub iterator/generator is being disposed. `Symbol.asyncDispose()` will be preferred over `Symbol.dispose()` on server stub. This behavior is equivalent to `await using` on a generator with both dispose functions set.
+[Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management) is supported. Using `await using` operator on client stub will close underlying ports when the iterator/generator is being disposed. On server stub side, `Symbol.asyncDispose()` will be called if specified. Otherwise, `Symbol.dispose()` will be called if specified. This behavior is equivalent to `await using` on a generator with both dispose functions set.
 
-Notes: if you use `next()` to iterate instead of for-loop, and did not reach `{ done: true }`, you will need to use `withOptions({ signal: AbortSignal })` to dispose underlying ports properly.
+Notes: if you are calling `next()` to iterate instead of for-loop, and the iterator/generator did not reach `{ done: true }`, you should use `using` operator or `withOptions({ signal: AbortSignal })` to close underlying ports properly.
 
 ## API
 
