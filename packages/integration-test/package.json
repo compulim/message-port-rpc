@@ -21,8 +21,6 @@
     "message-port-rpc": "^0.0.0-0"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.0.11",
-    "@happy-dom/jest-environment": "^20.0.11",
     "@testduet/wait-for": "^0.1.1",
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^22.7.5",
