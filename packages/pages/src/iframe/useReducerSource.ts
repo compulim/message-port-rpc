@@ -44,6 +44,7 @@ export default function useReducerSource<R extends Reducer<any, any>, I>(
         // Ignore intentional rejection.
       });
 
+    // eslint-disable-next-line react-hooks/refs
     dispatchRef.current = messagePortRPC<DispatchStub, SetStateStub>(port2, setState);
 
     return [abortController, messageChannel];
@@ -70,5 +71,6 @@ export default function useReducerSource<R extends Reducer<any, any>, I>(
     [dispatchRef]
   );
 
+  // eslint-disable-next-line react-hooks/refs
   return useMemo(() => Object.freeze([state, dispatch]), [dispatch, state]);
 }

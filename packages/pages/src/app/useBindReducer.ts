@@ -27,7 +27,7 @@ export default function useBindReducer<R extends Reducer<any, any>>(
       // So this Promise will never resolve/reject, it will be aborted by the client on unmount.
       return new Promise<never>(() => {
         // The second layer of RPC is the actual [state, dispatch].
-        const setStateStub = messagePortRPC<SetStateStub, DispatchStub>(port, dispatch);
+        const setStateStub = messagePortRPC<SetStateStub, DispatchStub>(port, dispatchRef.current);
 
         // Subscribe to state change.
         setStateStubsRef.current.add(setStateStub);
