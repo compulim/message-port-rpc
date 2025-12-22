@@ -18,7 +18,7 @@
   "author": "William Wong (https://github.com/compulim)",
   "license": "MIT",
   "localPeerDependencies": {
-    "message-port-rpc": "^0.0.0-0"
+    "message-port-rpc": "0.0.0-0"
   },
   "devDependencies": {
     "@testduet/wait-for": "^0.1.1",
@@ -28,6 +28,6 @@
     "mocha": "^11.7.5"
   },
   "dependencies": {
-    "message-port-rpc": "^0.0.0-0"
+    "message-port-rpc": "0.0.0-0"
   }
 }

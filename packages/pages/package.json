@@ -18,19 +18,33 @@
   "author": "William Wong (https://github.com/compulim)",
   "license": "MIT",
   "localPeerDependencies": {
-    "message-port-rpc": "^0.0.0-0"
+    "message-port-rpc": "0.0.0-0"
+  },
+  "pinDependencies": {
+    "@types/react": [
+      "18"
+    ],
+    "@types/react-dom": [
+      "18"
+    ],
+    "react": [
+      "18"
+    ],
+    "react-dom": [
+      "18"
+    ]
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
     "esbuild": "^0.27.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "message-port-rpc": "^0.0.0-0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "message-port-rpc": "0.0.0-0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "use-ref-from": "^0.1.0"
   }
 }
