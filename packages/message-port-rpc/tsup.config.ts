@@ -7,6 +7,7 @@ export default defineConfig([
       'message-port-rpc': './src/index.ts'
     },
     format: ['cjs', 'esm'],
-    sourcemap: true
+    sourcemap: true,
+    target: 'esnext'
   }
 ]);
