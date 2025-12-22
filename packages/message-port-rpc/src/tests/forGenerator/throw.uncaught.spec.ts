@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { waitFor } from '@testduet/wait-for';
 
-import waitFor from '../../../__tests__/__setup__/waitFor';
 import forGenerator from '../../forGenerator';
 
 type Fn = (object: Record<string, string>) => Generator<string, number, boolean>;
@@ -61,7 +61,7 @@ describe('when iterating', () => {
 
     generator = rpc.withOptions({ signal: abortController.signal })({ hello: 'World!' });
 
-    await waitFor(() => expect(fn).toBeCalledTimes(1));
+    await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
   });
 
   test('should generate with arguments', () => expect(fn).toHaveBeenNthCalledWith(1, { hello: 'World!' }));
