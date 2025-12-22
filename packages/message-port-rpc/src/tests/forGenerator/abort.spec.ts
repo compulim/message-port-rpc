@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import waitFor from '../../../__tests__/__setup__/waitFor';
 import forGenerator from '../../forGenerator';
