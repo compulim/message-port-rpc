@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { waitFor } from '@testduet/wait-for';
 
-import waitFor from '../../__tests__/__setup__/waitFor';
 import messagePortRPC from '../messagePortRPC';
 
 type Fn = (x: number, y: number) => Promise<number>;
@@ -36,7 +36,7 @@ describe('send with abort', () => {
       // Do nothing.
     });
 
-    await waitFor(() => expect(fn).toBeCalledTimes(1));
+    await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
   });
 
   afterEach(() => {

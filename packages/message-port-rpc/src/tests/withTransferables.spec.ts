@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { waitFor } from '@testduet/wait-for';
 
-import waitFor from '../../__tests__/__setup__/waitFor';
 import messagePortRPC from '../messagePortRPC';
 
 describe('send transferables', () => {
@@ -34,7 +34,7 @@ describe('send transferables', () => {
 
       rpc.withOptions({ transfer: [arrayBuffer, port1] })(arrayBuffer, port1);
 
-      await waitFor(() => expect(fn).toBeCalledTimes(1));
+      await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
     });
 
     afterEach(() => {
@@ -69,7 +69,7 @@ describe('send transferables', () => {
         port2.postMessage({ one: 1 });
 
         await waitFor(() => {
-          expect(receivePort.onmessage).toBeCalledTimes(1);
+          expect(receivePort.onmessage).toHaveBeenCalledTimes(1);
           expect(receivePort.onmessage).toHaveBeenCalledWith(expect.objectContaining({ data: { one: 1 } }));
         });
       });
