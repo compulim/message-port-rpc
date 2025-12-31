@@ -1,11 +1,11 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { describeEach } from '@compulim/test-harness/describeEach';
 import { waitFor } from '@testduet/wait-for';
-
-import createDeferred from '../../__tests__/__setup__/createDeferred';
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 type Fn = (x: number, y: number) => Promise<number>;
-type MockFn = jest.Mock<Fn>;
+type MockFn = Mock<Fn>;
 type RPC = ReturnType<typeof messagePortRPC<Fn, Fn>>;
 
 describe('create RPC from port', () => {
@@ -19,8 +19,8 @@ describe('create RPC from port', () => {
   beforeEach(() => {
     ({ port1, port2 } = new MessageChannel());
 
-    fn1 = jest.fn();
-    fn2 = jest.fn();
+    fn1 = mock.fn();
+    fn2 = mock.fn();
 
     rpc1 = messagePortRPC(port1, fn1);
     rpc2 = messagePortRPC(port2, fn2);
@@ -31,7 +31,7 @@ describe('create RPC from port', () => {
     port2?.close();
   });
 
-  describe.each([
+  describeEach<[string, () => [RPC, MockFn]]>([
     ['port 1 -> port 2', () => [rpc1, fn2] as [RPC, MockFn]],
     ['port 2 -> port 1', () => [rpc2, fn1] as [RPC, MockFn]]
   ])('%s', (_, getParameters) => {
@@ -46,7 +46,7 @@ describe('create RPC from port', () => {
       let resultPromise: Promise<number>;
 
       beforeEach(() => {
-        theFn.mockImplementation((x, y) => Promise.resolve(x + y));
+        theFn.mock.mockImplementation((x, y) => Promise.resolve(x + y));
 
         resultPromise = theRPC(12, 34);
       });
@@ -55,26 +55,26 @@ describe('create RPC from port', () => {
     });
 
     describe('call() twice', () => {
-      let deferred1: ReturnType<typeof createDeferred<void>>;
-      let deferred2: ReturnType<typeof createDeferred<void>>;
+      let deferred1: PromiseWithResolvers<void>;
+      let deferred2: PromiseWithResolvers<void>;
 
       let result1Promise: Promise<number>;
       let result2Promise: Promise<number>;
 
       beforeEach(() => {
-        deferred1 = createDeferred<void>();
-        deferred2 = createDeferred<void>();
+        deferred1 = Promise.withResolvers<void>();
+        deferred2 = Promise.withResolvers<void>();
 
-        theFn.mockImplementationOnce(async (x, y) => {
-          await deferred1.promise;
+        theFn.mock.mockImplementation(async (x, y) => {
+          if (theFn.mock.callCount() === 0) {
+            await deferred1.promise;
 
-          return x + y;
-        });
+            return x + y;
+          } else {
+            await deferred2.promise;
 
-        theFn.mockImplementationOnce(async (x, y) => {
-          await deferred2.promise;
-
-          return x * y;
+            return x * y;
+          }
         });
 
         result1Promise = theRPC(12, 34);
@@ -90,7 +90,7 @@ describe('create RPC from port', () => {
 
         test('should return value', () => waitFor(() => expect(result2Promise).resolves.toBe(12 * 34)));
         test('first call should not resolve/reject', () =>
-          Promise.race([
+          Promise.race<void>([
             result1Promise.then(() => Promise.reject('should not resolve')),
             new Promise(resolve => setTimeout(resolve, 0))
           ]));
@@ -107,7 +107,7 @@ describe('create RPC from port', () => {
       let resultPromise: Promise<number>;
 
       beforeEach(() => {
-        theFn.mockImplementation(() => Promise.reject(123));
+        theFn.mock.mockImplementation(() => Promise.reject(123));
 
         resultPromise = theRPC(12, 34);
       });
@@ -119,7 +119,7 @@ describe('create RPC from port', () => {
       let resultPromise: Promise<number>;
 
       beforeEach(() => {
-        theFn.mockImplementation(() => Promise.reject(new Error('Artificial.')));
+        theFn.mock.mockImplementation(() => Promise.reject(new Error('Artificial.')));
 
         resultPromise = theRPC(12, 34);
       });

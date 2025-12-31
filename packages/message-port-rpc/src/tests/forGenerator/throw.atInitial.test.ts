@@ -1,13 +1,13 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { waitFor } from '@testduet/wait-for';
-
-import forGenerator from '../../forGenerator';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import forGenerator from '../../forGenerator.ts';
 
 type Fn = (object: Record<string, string>) => Generator<string, number, boolean>;
 
 let abortController: AbortController;
-let fn: jest.Mock<Fn>;
-let initFn: jest.Mock<() => void>;
+let fn: Mock<Fn>;
+let initFn: Mock<() => void>;
 let port1: MessagePort;
 let port2: MessagePort;
 let rpc: ReturnType<typeof forGenerator<Fn>>;
@@ -16,8 +16,8 @@ beforeEach(async () => {
   ({ port1, port2 } = new MessageChannel());
 
   abortController = new AbortController();
-  fn = jest.fn<Fn>();
-  initFn = jest.fn();
+  fn = mock.fn<Fn>();
+  initFn = mock.fn();
 
   forGenerator<Fn>(port2, fn);
   rpc = forGenerator<Fn>(port1);
@@ -35,17 +35,17 @@ describe('when iterating', () => {
 
   beforeEach(async () => {
     // eslint-disable-next-line require-yield
-    fn.mockImplementationOnce(function* () {
+    fn.mock.mockImplementationOnce(function* () {
       throw new Error('Hello, World!');
     });
 
     generator = rpc.withOptions({ signal: abortController.signal })({ hello: 'World!' });
 
-    await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fn.mock.callCount()).toBe(1));
   });
 
-  test('should generate with arguments', () => expect(fn).toHaveBeenNthCalledWith(1, { hello: 'World!' }));
-  test('should not call fn()', () => expect(initFn).toHaveBeenCalledTimes(0));
+  test('should generate with arguments', () => expect(fn.mock.calls[0]?.arguments).toEqual([{ hello: 'World!' }]));
+  test('should not call fn()', () => expect(initFn.mock.callCount()).toBe(0));
 
   describe('next() for the first time', () => {
     let promise: Promise<unknown>;

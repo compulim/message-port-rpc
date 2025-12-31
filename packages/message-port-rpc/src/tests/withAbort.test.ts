@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { waitFor } from '@testduet/wait-for';
-
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 type Fn = (x: number, y: number) => Promise<number>;
-type MockFn = jest.Mock<Fn>;
+type MockFn = Mock<Fn>;
 type RPC = ReturnType<typeof messagePortRPC<Fn, Fn>>;
 
 describe('send with abort', () => {
@@ -19,7 +19,7 @@ describe('send with abort', () => {
     ({ port1, port2 } = new MessageChannel());
 
     abortController = new AbortController();
-    fn = jest.fn(
+    fn = mock.fn(
       () =>
         new Promise(() => {
           // Do nothing.
@@ -36,7 +36,7 @@ describe('send with abort', () => {
       // Do nothing.
     });
 
-    await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fn.mock.callCount()).toBe(1));
   });
 
   afterEach(() => {
@@ -48,7 +48,7 @@ describe('send with abort', () => {
   });
 
   test('signal should not abort initially', async () => {
-    expect(fn.mock.contexts[0]).toHaveProperty('signal.aborted', false);
+    expect(fn.mock.calls[0]?.this).toHaveProperty('signal.aborted', false);
   });
 
   describe('when abort()', () => {
@@ -61,7 +61,7 @@ describe('send with abort', () => {
     });
 
     test('signal should be aborted', async () => {
-      await waitFor(() => expect(fn.mock.contexts[0]).toHaveProperty('signal.aborted', true));
+      await waitFor(() => expect(fn.mock.calls[0]?.this).toHaveProperty('signal.aborted', true));
     });
   });
 });

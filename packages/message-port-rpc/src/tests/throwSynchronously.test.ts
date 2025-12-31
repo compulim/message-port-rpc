@@ -1,12 +1,12 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { waitFor } from '@testduet/wait-for';
-
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 describe('throw synchronously', () => {
   type Fn = () => never;
 
-  let fn: jest.Mock<Fn>;
+  let fn: Mock<Fn>;
   let port1: MessagePort;
   let port2: MessagePort;
   let rpc: ReturnType<typeof messagePortRPC<Fn>>;
@@ -15,7 +15,7 @@ describe('throw synchronously', () => {
   beforeEach(async () => {
     ({ port1, port2 } = new MessageChannel());
 
-    fn = jest.fn<Fn>(() => {
+    fn = mock.fn<Fn>(() => {
       throw new Error('Artificial.');
     });
 
@@ -29,7 +29,7 @@ describe('throw synchronously', () => {
       // Do nothing.
     });
 
-    await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fn.mock.callCount()).toBe(1));
   });
 
   afterEach(() => {

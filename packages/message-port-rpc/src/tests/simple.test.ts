@@ -1,13 +1,13 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { waitFor } from '@testduet/wait-for';
-
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 // The following is for copying to our bug.yml.
 describe('simple', () => {
   type Fn = (x: number, y: number) => number;
 
-  let fn: jest.Mock<Fn>;
+  let fn: Mock<Fn>;
   let port1: MessagePort;
   let port2: MessagePort;
   let rpc: ReturnType<typeof messagePortRPC<Fn>>;
@@ -16,7 +16,7 @@ describe('simple', () => {
   beforeEach(async () => {
     ({ port1, port2 } = new MessageChannel());
 
-    fn = jest.fn<Fn>((x, y) => x + y);
+    fn = mock.fn<Fn>((x, y) => x + y);
 
     messagePortRPC<Fn>(port1, fn);
     rpc = messagePortRPC<Fn>(port2);
@@ -36,7 +36,7 @@ describe('simple', () => {
     });
 
     // THEN: Should have called the server stub.
-    test('should call the server stub', () => waitFor(() => expect(fn).toHaveBeenCalledTimes(1)));
+    test('should call the server stub', () => waitFor(() => expect(fn.mock.callCount()).toBe(1)));
 
     // THEN: Should return 3.
     test('should resolve 3', () => waitFor(() => expect(promise).resolves.toBe(3)));

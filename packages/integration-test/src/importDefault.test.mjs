@@ -1,5 +1,6 @@
-const { expect } = require('expect');
-const { messagePortRPC } = require('message-port-rpc');
+import { expect } from 'expect';
+import { messagePortRPC } from 'message-port-rpc';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 
 describe('simple scenario', () => {
   let port1, port2;

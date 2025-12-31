@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { waitFor } from '@testduet/wait-for';
-
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 describe('send transferables', () => {
-  let fn: jest.Mock<(arrayBuffer: ArrayBuffer, port: MessagePort) => Promise<void>>;
+  let fn: Mock<(arrayBuffer: ArrayBuffer, port: MessagePort) => Promise<void>>;
   let rpc: ReturnType<typeof messagePortRPC<typeof fn>>;
   let port1: MessagePort;
   let port2: MessagePort;
@@ -12,7 +12,7 @@ describe('send transferables', () => {
   beforeEach(() => {
     ({ port1, port2 } = new MessageChannel());
 
-    fn = jest.fn();
+    fn = mock.fn();
 
     messagePortRPC(port2, fn);
     rpc = messagePortRPC<typeof fn>(port1);
@@ -34,7 +34,7 @@ describe('send transferables', () => {
 
       rpc.withOptions({ transfer: [arrayBuffer, port1] })(arrayBuffer, port1);
 
-      await waitFor(() => expect(fn).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(fn.mock.callCount()).toBe(1));
     });
 
     afterEach(() => {
@@ -43,13 +43,13 @@ describe('send transferables', () => {
     });
 
     describe('should call host function', () => {
-      test('once', () => expect(fn).toHaveBeenCalledTimes(1));
+      test('once', () => expect(fn.mock.callCount()).toBe(1));
 
       test('with ArrayBuffer and MessagePort', () =>
-        expect(fn).toHaveBeenNthCalledWith(1, expect.any(ArrayBuffer), expect.any(MessagePort)));
+        expect(fn.mock.calls[0]?.arguments).toEqual([expect.any(ArrayBuffer), expect.any(MessagePort)]));
 
       test('with content', () => {
-        const arrayBuffer = fn.mock.calls[0]?.[0];
+        const arrayBuffer = fn.mock.calls[0]?.arguments[0];
 
         if (!arrayBuffer) {
           throw new Error('first argument must not be falsy.');
@@ -59,18 +59,20 @@ describe('send transferables', () => {
       });
 
       test('with working MessagePort', async () => {
-        const receivePort = fn.mock.calls[0]?.[1];
+        const receivePort = fn.mock.calls[0]?.arguments[1];
 
         if (!receivePort) {
           throw new Error('second argument must not be falsy.');
         }
 
-        receivePort.onmessage = jest.fn();
+        const handleMessage = mock.fn<(this: MessagePort, ev: MessageEvent<unknown>) => unknown>();
+
+        receivePort.onmessage = handleMessage;
         port2.postMessage({ one: 1 });
 
         await waitFor(() => {
-          expect(receivePort.onmessage).toHaveBeenCalledTimes(1);
-          expect(receivePort.onmessage).toHaveBeenCalledWith(expect.objectContaining({ data: { one: 1 } }));
+          expect(handleMessage.mock.callCount()).toBe(1);
+          expect(handleMessage.mock.calls[0]?.arguments).toEqual([expect.objectContaining({ data: { one: 1 } })]);
         });
       });
     });

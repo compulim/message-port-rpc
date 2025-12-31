@@ -14,5 +14,6 @@ jobs:
         switch: [current]
     uses: compulim/workflows/.github/workflows/pull-request-validation.yml@main
     with:
+      node-version: 24
       package-name: 'message-port-rpc'
       switch: ${{ matrix.switch }}

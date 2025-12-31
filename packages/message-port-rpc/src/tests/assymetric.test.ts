@@ -1,13 +1,13 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
-
-import messagePortRPC from '../messagePortRPC';
+import { expect } from 'expect';
+import { afterEach, beforeEach, describe, mock, test, type Mock } from 'node:test';
+import messagePortRPC from '../messagePortRPC.ts';
 
 describe('assymetric functions', () => {
   type Fn1 = (value: number) => string;
   type Fn2 = (value: string) => number;
 
-  let fn1: jest.Mock<Fn1>;
-  let fn2: jest.Mock<Fn2>;
+  let fn1: Mock<Fn1>;
+  let fn2: Mock<Fn2>;
   let port1: MessagePort;
   let port2: MessagePort;
   let rpc1: ReturnType<typeof messagePortRPC<Fn2, Fn1>>;
@@ -16,8 +16,8 @@ describe('assymetric functions', () => {
   beforeEach(() => {
     ({ port1, port2 } = new MessageChannel());
 
-    fn1 = jest.fn<(value: number) => string>(value => '' + value);
-    fn2 = jest.fn<(value: string) => number>(value => +value);
+    fn1 = mock.fn<(value: number) => string>(value => '' + value);
+    fn2 = mock.fn<(value: string) => number>(value => +value);
 
     // TODO: Verify typing.
     rpc1 = messagePortRPC<Fn2, Fn1>(port1, fn1);
