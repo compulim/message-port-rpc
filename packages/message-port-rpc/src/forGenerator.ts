@@ -138,8 +138,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         const result = await generator.next(...args);
 
         // Automatically close server ports when iteration is done.
-        // Client will fake the next() output after iteration is done.
-        // TODO: How about return() and other stuff after iteration is done?
+        // Client will fake the next()/return()/throw() output after iteration is done.
         result.done && serverClosePorts();
 
         return result;
