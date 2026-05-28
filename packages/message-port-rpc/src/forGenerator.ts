@@ -4,6 +4,8 @@ import messagePortRPC from './messagePortRPC.ts';
 
 const GENERATE = 'GENERATOR_GENERATE';
 
+type ClientDisposeReason = 'abort' | 'dispose' | 'done';
+
 // type GeneratorSubroutine<TArgs extends unknown[] = any[], T = unknown, TReturn = any, TNext = unknown> = (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GeneratorSubroutine = (...args: any[]) => AsyncGenerator | Generator | AsyncIterator<unknown> | Iterator<unknown>;
@@ -125,20 +127,47 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
 
       const generator = fn(...args);
 
-      messagePortRPC(messagePorts.next, generator.next.bind(generator));
+      const serverClosePorts = () => {
+        messagePorts.asyncDispose.close();
+        messagePorts.next.close();
+        messagePorts.return.close();
+        messagePorts.throw.close();
+      };
+
+      messagePortRPC(messagePorts.next, async (...args: ClientSubroutineNext) => {
+        const result = await generator.next(...args);
+
+        // Automatically close server ports when iteration is done.
+        // Client will fake the next() output after iteration is done.
+        // TODO: How about return() and other stuff after iteration is done?
+        result.done && serverClosePorts();
+
+        return result;
+      });
 
       // This is a slight deviation from the actual `Iterator`.
       // In the original approach, `Iterator.return` is not defined.
       // In our approach, the client stub does not know if the server stub has `Iterator.return` defined or not, instead, we simply return `{ done: true }`.
-      messagePortRPC(messagePorts.return, value => generator.return?.(value) || { done: true });
-      messagePortRPC(messagePorts.throw, error => generator.throw?.(error) || Promise.reject(error));
-      messagePortRPC(messagePorts.asyncDispose, async (): Promise<void> => {
-        const symbolAsyncDispose: typeof Symbol.asyncDispose = Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose');
-        const symbolDispose: typeof Symbol.dispose = Symbol.dispose || Symbol.for('Symbol.dispose');
+      messagePortRPC(messagePorts.return, async value => {
+        return (await generator.return?.(value)) ?? { done: true };
+      });
 
-        symbolAsyncDispose in generator
-          ? await generator[symbolAsyncDispose]()
-          : symbolDispose in generator && generator[symbolDispose]();
+      messagePortRPC(messagePorts.throw, async error => {
+        return (await generator.throw?.(error)) ?? Promise.reject(error);
+      });
+
+      messagePortRPC(messagePorts.asyncDispose, async (): Promise<void> => {
+        try {
+          const symbolAsyncDispose: typeof Symbol.asyncDispose =
+            Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose');
+          const symbolDispose: typeof Symbol.dispose = Symbol.dispose || Symbol.for('Symbol.dispose');
+
+          symbolAsyncDispose in generator
+            ? await generator[symbolAsyncDispose]()
+            : symbolDispose in generator && generator[symbolDispose]();
+        } finally {
+          serverClosePorts();
+        }
       });
     }
   };
@@ -151,8 +180,6 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
   ): ((
     ...args: ClientSubroutineParameters
   ) => AsyncGenerator<ClientSubroutineYield, ClientSubroutineReturn, ClientSubroutineNext>) => {
-    let checkAborted: (() => void) | undefined;
-
     return (...args: ClientSubroutineParameters) => {
       const { port1: asyncDisposePort1, port2: asyncDisposePort2 } = new MessageChannel();
       const { port1: nextPort1, port2: nextPort2 } = new MessageChannel();
@@ -160,17 +187,6 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       const { port1: throwPort1, port2: throwPort2 } = new MessageChannel();
 
       const subInit = { signal: init.signal };
-
-      const closePorts = () => {
-        asyncDisposePort1.close();
-        asyncDisposePort2.close();
-        nextPort1.close();
-        nextPort2.close();
-        returnPort1.close();
-        returnPort2.close();
-        throwPort1.close();
-        throwPort2.close();
-      };
 
       const asyncDisposeRPC = messagePortRPC<() => void>(asyncDisposePort1).withOptions(subInit);
 
@@ -187,49 +203,80 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
       const throwRPC =
         messagePortRPC<(error: unknown) => ClientSubroutineIteratorResult>(throwPort1).withOptions(subInit);
 
-      let finished = false;
-      const callGenerator = async (
-        fn: () => Promise<IteratorResult<ClientSubroutineYield, ClientSubroutineReturn>>
-      ): Promise<IteratorResult<ClientSubroutineYield, ClientSubroutineReturn>> => {
-        checkAborted?.();
-
-        // After the generator returned { done: true, value: any } once, all subsequent calls will be { done: true }.
-        if (finished) {
-          // It is okay to return without "value" property.
-          return { done: true } as IteratorResult<ClientSubroutineYield, ClientSubroutineReturn>;
+      const callAsyncDispose = async (disposeReason: ClientDisposeReason) => {
+        if (disposed) {
+          return;
         }
 
-        const result = await fn();
-
-        if (result.done) {
-          finished = true;
-
-          closePorts();
+        // AsyncDispose has never been called.
+        if (disposeReason === 'abort' || disposeReason === 'dispose') {
+          // Only call server for AsyncDispose if the user intentionally abort or dispose.
+          // Otherwise, the server-side object should have already disposed due to "done" and "error".
+          await asyncDisposeRPC();
         }
 
-        return result;
+        disposed = disposeReason;
+
+        asyncDisposePort1.close();
+        asyncDisposePort2.close();
+        nextPort1.close();
+        nextPort2.close();
+        returnPort1.close();
+        returnPort2.close();
+        throwPort1.close();
+        throwPort2.close();
       };
 
-      const asyncDisposeGenerator = async (fn: () => Promise<void>): Promise<void> => {
-        checkAborted?.();
-
-        await fn();
-
-        finished = true;
-        closePorts();
-
-        checkAborted = () => {
-          throw new Error('This generator has been disposed.');
-        };
-      };
+      let disposed: ClientDisposeReason | undefined;
 
       const generator: AsyncGenerator<ClientSubroutineYield, ClientSubroutineReturn, ClientSubroutineNext> = {
-        next: (value: NextOfGenerator<ReturnType<C>> | void) => callGenerator(() => nextRPC(value)),
-        return: (value: ReturnOfGenerator<ReturnType<C>>) => callGenerator(() => returnRPC(value)),
-        throw: (error: unknown) => callGenerator(() => throwRPC(error)),
+        next: async (value: NextOfGenerator<ReturnType<C>> | void) => {
+          if (disposed) {
+            // TODO: Simplify by reducing repetitions.
+            // Already disposed, the MessagePort are all closed, return previous result.
+            if (disposed === 'abort' || disposed === 'dispose') {
+              throw new Error('This generator has been disposed.');
+            }
+
+            return { done: true } as any;
+          }
+
+          const result = await nextRPC(value);
+
+          if (result.done) {
+            await callAsyncDispose('done');
+          }
+
+          return result;
+        },
+        return: async (value: ReturnOfGenerator<ReturnType<C>>) => {
+          if (disposed) {
+            // Already disposed, the MessagePort are all closed, return previous result.
+            if (disposed === 'abort' || disposed === 'dispose') {
+              throw new Error('This generator has been disposed.');
+            }
+
+            return { done: true, value };
+          }
+
+          return (await returnRPC(value)) as IteratorReturnResult<ClientSubroutineReturn>;
+        },
+        throw: async (error: unknown) => {
+          if (disposed) {
+            // Already disposed, the MessagePort are all closed, return previous result.
+            if (disposed === 'abort' || disposed === 'dispose') {
+              throw new Error('This generator has been disposed.');
+            }
+
+            throw error;
+          }
+
+          return await throwRPC(error);
+        },
         // Ponyfills for Symbol.asyncDispose
-        [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: () =>
-          asyncDisposeGenerator(() => asyncDisposeRPC()),
+        [Symbol.asyncDispose || Symbol.for('Symbol.asyncDispose')]: async () => {
+          await callAsyncDispose('dispose');
+        },
         [Symbol.asyncIterator]: () => generator
       };
 
@@ -242,17 +289,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         [...(init.transfer || []), asyncDisposePort2, nextPort2, returnPort2, throwPort2]
       );
 
-      init.signal?.addEventListener(
-        'abort',
-        () => {
-          checkAborted = () => {
-            throw new Error('This generator has been aborted.');
-          };
-
-          closePorts();
-        },
-        { once: true }
-      );
+      init.signal?.addEventListener('abort', () => callAsyncDispose('abort').catch(() => {}), { once: true });
 
       return generator;
     };
