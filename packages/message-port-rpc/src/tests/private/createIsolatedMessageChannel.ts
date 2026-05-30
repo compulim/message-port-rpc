@@ -1,4 +1,4 @@
-import walk from './walk.ts';
+import { workthru } from 'workthru';
 
 function createIsolatedMessagePort(port: MessagePort): MessagePort {
   const messageChannel = new MessageChannel();
@@ -27,7 +27,7 @@ function pipe(port1: MessagePort, port2: MessagePort): void {
         return nextPort;
       };
 
-      const nextData = walk(data, value => {
+      const nextData = workthru(data, value => {
         if (!(value instanceof MessagePort)) {
           return value;
         }
