@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | ---- | -------------------------------------------------------------- |
 | 👷🏻   | Related to development experience and non-production impacting |
 
-## [Unreleased]
+## [2.0.1] - 2026-05-31
 
 ### Changed
 
@@ -177,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release
 
-[Unreleased]: https://github.com/compulim/message-port-rpc/compare/v2.0.0...HEAD
+[2.0.1]: https://github.com/compulim/message-port-rpc/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/compulim/message-port-rpc/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/compulim/message-port-rpc/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/compulim/message-port-rpc/releases/tag/v1.0.0
