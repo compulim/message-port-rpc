@@ -5,7 +5,7 @@ import { spyOn } from 'jest-mock';
 import { relative } from 'node:path';
 import * as NodeTest from 'node:test';
 import { fileURLToPath } from 'node:url';
-import forGenerator from '../../../forGenerator.ts';
+import forGenerator from '../../forGenerator.ts';
 
 scenario(
   relative(process.cwd(), fileURLToPath(import.meta.url)),
