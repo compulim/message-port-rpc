@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - 👷🏻 Test framework moved from Jest to Node.js test runner, by [@compulim](https://github.com/compulim) in PR [#54](https://github.com/compulim/message-port-rpc/pull/54)
+- 👷🏻 Pinned to `eslint@9` as required by `eslint-plugin-react@7.37.5`, by [@compulim](https://github.com/compulim) in PR [#59](https://github.com/compulim/message-port-rpc/pull/59)
 
 ### Fixed
 
