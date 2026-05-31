@@ -203,7 +203,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         messagePortRPC<(error: unknown) => ClientSubroutineIteratorResult>(throwPort1).withOptions(subInit);
 
       const callAsyncDispose = async (disposeReason: ClientDisposeReason) => {
-        if (disposed) {
+        if (isDone(false)) {
           return;
         }
 
@@ -214,7 +214,20 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
           await asyncDisposeRPC();
         }
 
-        disposed = disposeReason;
+        if (disposeReason === 'done') {
+          isDone = () => true;
+        } else {
+          disposeReason satisfies 'abort' | 'dispose';
+
+          isDone = (throwOnDispose = true) => {
+            if (throwOnDispose === true) {
+              // Already disposed, the MessagePort are all closed, return previous result.
+              throw new Error('This generator has been disposed.');
+            }
+
+            return true;
+          };
+        }
 
         asyncDisposePort1.close();
         asyncDisposePort2.close();
@@ -226,18 +239,14 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         throwPort2.close();
       };
 
-      let disposed: ClientDisposeReason | undefined;
+      let isDone: (throwOnDispose?: boolean | undefined) => boolean = () => false;
 
       const generator: AsyncGenerator<ClientSubroutineYield, ClientSubroutineReturn, ClientSubroutineNext> = {
         next: async (value: NextOfGenerator<ReturnType<C>> | void) => {
-          if (disposed) {
-            // TODO: Simplify by reducing repetitions.
-            // Already disposed, the MessagePort are all closed, return previous result.
-            if (disposed === 'abort' || disposed === 'dispose') {
-              throw new Error('This generator has been disposed.');
-            }
-
-            return { done: true } as any;
+          if (isDone()) {
+            // Return type of any generators should allow `undefined`.
+            // For example, after the generator is exhausted, the return value will be `undefined`.
+            return { done: true, value: undefined } satisfies IteratorReturnResult<undefined> as any;
           }
 
           const result = await nextRPC(value);
@@ -249,24 +258,14 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
           return result;
         },
         return: async (value: ReturnOfGenerator<ReturnType<C>>) => {
-          if (disposed) {
-            // Already disposed, the MessagePort are all closed, return previous result.
-            if (disposed === 'abort' || disposed === 'dispose') {
-              throw new Error('This generator has been disposed.');
-            }
-
+          if (isDone()) {
             return { done: true, value };
           }
 
-          return (await returnRPC(value)) as IteratorReturnResult<ClientSubroutineReturn>;
+          return await returnRPC(value);
         },
         throw: async (error: unknown) => {
-          if (disposed) {
-            // Already disposed, the MessagePort are all closed, return previous result.
-            if (disposed === 'abort' || disposed === 'dispose') {
-              throw new Error('This generator has been disposed.');
-            }
-
+          if (isDone()) {
             throw error;
           }
 
