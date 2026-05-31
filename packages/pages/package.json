@@ -39,15 +39,15 @@
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
-    "@types/react": "^18.3.27",
+    "@types/react": "^18.3.29",
     "@types/react-dom": "^18.3.7",
-    "esbuild": "^0.27.2",
-    "typescript": "^5.9.3"
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "message-port-rpc": "0.0.0-0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "use-ref-from": "^0.1.0"
+    "use-ref-from": "^0.2.1"
   }
 }

@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 👷🏻 Test framework moved from Jest to Node.js test runner, by [@compulim](https://github.com/compulim) in PR [#54](https://github.com/compulim/message-port-rpc/pull/54)
 - 👷🏻 Pinned to `eslint@9` as required by `eslint-plugin-react@7.37.5`, by [@compulim](https://github.com/compulim) in PR [#59](https://github.com/compulim/message-port-rpc/pull/59)
+- Bumped dependencies, in PR [#60](https://github.com/compulim/message-port-rpc/pull/60)
+  - Development dependencies
+    - [`@happy-dom/global-registrator@20.9.0`](https://npmjs.com/package/@happy-dom/global-registrator/v/20.9.0)
+    - [`@types/node@25.9.1`](https://npmjs.com/package/@types/node/v/25.9.1)
+    - [`@types/react@18.3.29`](https://npmjs.com/package/@types/react/v/18.3.29)
+    - [`@typescript-eslint/eslint-plugin@8.60.0`](https://npmjs.com/package/@typescript-eslint/eslint-plugin/v/8.60.0)
+    - [`@typescript-eslint/parser@8.60.0`](https://npmjs.com/package/@typescript-eslint/parser/v/8.60.0)
+    - [`esbuild@0.28.0`](https://npmjs.com/package/esbuild/v/0.28.0)
+    - [`escape-string-regexp@5.0.0`](https://npmjs.com/package/escape-string-regexp/v/5.0.0)
+    - [`eslint@9.39.4`](https://npmjs.com/package/eslint/v/9.39.4)
+    - [`eslint-plugin-prettier@5.5.6`](https://npmjs.com/package/eslint-plugin-prettier/v/5.5.6)
+    - [`eslint-plugin-react-hooks@7.1.1`](https://npmjs.com/package/eslint-plugin-react-hooks/v/7.1.1)
+    - [`expect@30.4.1`](https://npmjs.com/package/expect/v/30.4.1)
+    - [`prettier@3.8.3`](https://npmjs.com/package/prettier/v/3.8.3)
+    - [`publint@0.3.21`](https://npmjs.com/package/publint/v/0.3.21)
+    - [`typescript@6.0.3`](https://npmjs.com/package/typescript/v/6.0.3)
+    - [`use-ref-from@0.2.1`](https://npmjs.com/package/use-ref-from/v/0.2.1)
 
 ### Fixed
 
@@ -24,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `forGenerator` client should warn when connected to a non-server, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
 - Fixed `forGenerator` that all post-done behaviors should match native generator, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
    - After receiving `{ done: true }`, `next()` should return `undefined`, `return()` should return the passing value, and `throw()` should throw
+
 ## [2.0.0] - 2025-12-22
 
 ### Added
