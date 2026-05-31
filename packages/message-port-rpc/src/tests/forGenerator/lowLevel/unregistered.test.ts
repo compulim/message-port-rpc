@@ -1,12 +1,11 @@
 import { scenario } from '@testduet/given-when-then';
+import { waitFor } from '@testduet/wait-for';
 import { expect } from 'expect';
 import { spyOn } from 'jest-mock';
 import { relative } from 'node:path';
 import * as NodeTest from 'node:test';
 import { fileURLToPath } from 'node:url';
 import forGenerator from '../../../forGenerator.ts';
-import createIsolatedMessageChannel from '../../private/createIsolatedMessageChannel.ts';
-import { waitFor } from '@testduet/wait-for';
 
 scenario(
   relative(process.cwd(), fileURLToPath(import.meta.url)),
@@ -15,7 +14,6 @@ scenario(
       .given(
         'a client stub connect to another client stub',
         () => {
-          // const { port1, port2 } = createIsolatedMessageChannel();
           const { port1, port2 } = new MessageChannel();
 
           return {

@@ -15,12 +15,14 @@ scenario(
           try {
             yield 1;
           } finally {
+            // Intentionally for testing behavior.
+            // eslint-disable-next-line no-unsafe-finally
             return 2;
           }
         }
       }))
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [

@@ -11,8 +11,6 @@ scenario(
   bdd => {
     bdd
       .given('a generate function', () => {
-        let finalized = false;
-
         return {
           generate: async function* generate() {
             try {
@@ -25,13 +23,11 @@ scenario(
             }
 
             return;
-          },
-          getFinalized: () => finalized
+          }
         };
       })
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
-        readonly getFinalized: () => boolean;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [

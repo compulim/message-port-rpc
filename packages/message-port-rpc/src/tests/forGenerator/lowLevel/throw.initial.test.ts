@@ -11,12 +11,13 @@ scenario(
   bdd => {
     bdd
       .given('a generate function', () => ({
+        // eslint-disable-next-line require-yield
         generate: async function* generate() {
           throw 123;
         }
       }))
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [

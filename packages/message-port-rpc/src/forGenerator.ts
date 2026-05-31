@@ -251,6 +251,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
           if (isDone()) {
             // Return type of any generators should allow `undefined`.
             // For example, after the generator is exhausted, the return value will be `undefined`.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return { done: true, value: undefined } satisfies IteratorReturnResult<undefined> as any;
           }
 

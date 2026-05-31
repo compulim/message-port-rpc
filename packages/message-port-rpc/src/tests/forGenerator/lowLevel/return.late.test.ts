@@ -18,7 +18,7 @@ scenario(
         }
       }))
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [

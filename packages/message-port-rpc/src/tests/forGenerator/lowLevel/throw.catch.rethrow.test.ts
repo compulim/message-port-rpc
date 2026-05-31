@@ -13,16 +13,12 @@ scenario(
       .given('a generate function', () => {
         return {
           generate: async function* generate() {
-            try {
-              yield 1;
-            } catch (error) {
-              throw error;
-            }
+            yield 1;
           }
         };
       })
       .and.oneOf<{
-        readonly generator: AsyncGenerator<unknown, any, any>;
+        readonly generator: AsyncGenerator<unknown, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [

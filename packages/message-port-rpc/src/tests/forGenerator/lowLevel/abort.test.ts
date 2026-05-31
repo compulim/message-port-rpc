@@ -11,6 +11,7 @@ scenario(
   bdd => {
     bdd
       .given('a generate function', () => ({
+        // eslint-disable-next-line require-yield
         generate: async function* generate() {
           await new Promise(() => {}); // Never end
         }

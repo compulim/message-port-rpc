@@ -25,7 +25,7 @@ scenario(
         };
       })
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly getInitValue: () => number;
         readonly getLastYieldedValue: () => number;
         readonly messageChannel?: MessageChannel | undefined;

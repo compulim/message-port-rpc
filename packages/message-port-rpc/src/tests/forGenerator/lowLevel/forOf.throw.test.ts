@@ -16,13 +16,13 @@ scenario(
             yield 1;
             yield 2;
             yield 3;
-          } catch (error) {
+          } catch {
             yield 789;
           }
         }
       }))
       .and.oneOf<{
-        readonly generator: AsyncGenerator<number, any, any>;
+        readonly generator: AsyncGenerator<number, unknown, unknown>;
         readonly messageChannel?: MessageChannel | undefined;
       }>([
         [
@@ -53,7 +53,7 @@ scenario(
         ]
       ])
       .when('for-of loop is break after first iteration', async ({ generator }) => {
-        const values: any[] = [];
+        const values: unknown[] = [];
 
         try {
           for await (const value of generator) {
