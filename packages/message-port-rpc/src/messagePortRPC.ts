@@ -94,7 +94,7 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
       }
 
       if (fn) {
-        (async function () {
+        (async () => {
           const abortController = new AbortController();
 
           try {

@@ -117,15 +117,7 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
     if (Array.isArray(data) && data[0] === GENERATE) {
       event.stopImmediatePropagation();
 
-      if (!fn) {
-        throw new Error(
-          'No function was registered on this RPC. This is probably calling a client which do not implement the function.'
-        );
-      }
-
       const [_, messagePorts, ...args] = data;
-
-      const generator = fn(...args);
 
       const serverClosePorts = () => {
         messagePorts.asyncDispose.close();
@@ -133,6 +125,19 @@ export default function forGenerator<C extends GeneratorSubroutine, S extends Ge
         messagePorts.return.close();
         messagePorts.throw.close();
       };
+
+      if (!fn) {
+        // TODO: Throwing exception in onMessage is no-op, need to fix.
+        console.warn(
+          '`message-port-rpc`: No function was registered on this RPC. This is probably calling a client which do not implement the function.'
+        );
+
+        serverClosePorts();
+
+        return;
+      }
+
+      const generator = fn(...args);
 
       messagePortRPC(messagePorts.next, async (...args: ClientSubroutineNext) => {
         const result = await generator.next(...args);
