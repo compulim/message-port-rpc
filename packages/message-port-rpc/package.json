@@ -56,6 +56,7 @@
   "pinDependencies": {},
   "devDependencies": {
     "@compulim/test-harness": "0.0.0-0",
+    "@testduet/given-when-then": "^0.1.0",
     "@testduet/wait-for": "^0.1.1",
     "@tsconfig/recommended": "^1.0.13",
     "@tsconfig/strictest": "^2.0.8",
@@ -64,7 +65,8 @@
     "prettier": "^3.7.4",
     "publint": "^0.3.16",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "workthru": "^0.1.0"
   },
   "localPeerDependencies": {
     "@compulim/test-harness": "0.0.0-0"

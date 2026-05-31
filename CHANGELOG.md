@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 👷🏻 Test framework moved from Jest to Node.js test runner, by [@compulim](https://github.com/compulim) in PR [#54](https://github.com/compulim/message-port-rpc/pull/54)
 
+### Fixed
+
+- Fixed `forGenerator` should close associated `MessagePort` after `{ done: true }`, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
+   - After sending/receiving `{ done: true }`, all `MessagePort` will be closed on both server and client side, client behavior will be emulated locally
+   - To close associated `MessagePort` prematurely, use `await [Symbol.asyncDispose]()`
+- Fixed `forGenerator` client should warn when connected to a non-server, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
+- Fixed `forGenerator` that all post-done behaviors should match native generator, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
+   - After receiving `{ done: true }`, `next()` should return `undefined`, `return()` should return the passing value, and `throw()` should throw
 ## [2.0.0] - 2025-12-22
 
 ### Added
