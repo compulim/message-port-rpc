@@ -60,12 +60,12 @@
     "@testduet/wait-for": "^0.1.1",
     "@tsconfig/recommended": "^1.0.13",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^25.0.3",
-    "expect": "^30.2.0",
-    "prettier": "^3.7.4",
-    "publint": "^0.3.16",
+    "@types/node": "^25.9.1",
+    "expect": "^30.4.1",
+    "prettier": "^3.8.3",
+    "publint": "^0.3.21",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "workthru": "^0.1.0"
   },
   "localPeerDependencies": {
