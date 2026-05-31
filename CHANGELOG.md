@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 👷🏻 Test framework moved from Jest to Node.js test runner, by [@compulim](https://github.com/compulim) in PR [#54](https://github.com/compulim/message-port-rpc/pull/54)
 
+### Fixed
+
+- Fixed `forGenerator` not closing associated `MessagePort`, by [@compulim](https://github.com/compulim) in PR [#58](https://github.com/compulim/message-port-rpc/pull/58)
+
 ## [2.0.0] - 2025-12-22
 
 ### Added
