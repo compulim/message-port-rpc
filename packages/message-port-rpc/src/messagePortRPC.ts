@@ -43,8 +43,9 @@ type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args:
  *
  * This function supports bidirectional RPC when both sides are passing the `fn` argument.
  *
- * When calling the returned function stub, the arguments and return value are transferred over `MessagePort`.
- * Thus, they should be cloned by the underlying structured clone algorithm provided by the `MessagePort` implementation.
+ * When calling the returned function stub, the arguments and return value are sent over `MessagePort`.
+ * They would be sent by the underlying structured clone algorithm provided by the `MessagePort` implementation.
+ * Transferable are auto-populated and will be passed to `MessagePort.postMessage` call.
  *
  * The returned stub has a variant `withOptions` for passing abort signal.
  *
