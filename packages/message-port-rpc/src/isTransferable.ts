@@ -51,9 +51,10 @@ function isWebTransportReceiveStream(value: unknown): boolean {
     !!(
       (
         'WebTransportReceiveStream' in globalThis &&
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         typeof (globalThis as any)['WebTransportReceiveStream'] === 'function'
       )
-      // @ts-ignore
+      // @ts-expect-error WebTransportReceiveStream is not in TypeScript yet
     ) && value instanceof globalThis.WebTransportReceiveStream
   );
 }
@@ -61,8 +62,9 @@ function isWebTransportReceiveStream(value: unknown): boolean {
 function isWebTransportSendStream(value: unknown): boolean {
   return (
     !!(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ('WebTransportSendStream' in globalThis && typeof (globalThis as any)['WebTransportSendStream'] === 'function')
-      // @ts-ignore
+      // @ts-expect-error WebTransportSendStream is not in TypeScript yet
     ) && value instanceof globalThis.WebTransportSendStream
   );
 }
