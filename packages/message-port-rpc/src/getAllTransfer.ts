@@ -1,14 +1,16 @@
 import { workthru } from 'workthru';
 import isTransferable from './isTransferable.ts';
 
-export default function getAllTransfer(data: unknown): MessagePort[] {
-  const transferSet = new Set<MessagePort>();
+export default function getAllTransfer(data: unknown): Transferable[] {
+  const transferSet = new Set<Transferable>();
 
   workthru(data, value => {
-    isTransferable(value) && transferSet.add(value);
+    if (isTransferable(value)) {
+      transferSet.add(value as Transferable);
+    }
 
     return value;
   });
 
-  return Array.from(transferSet.values());
+  return Array.from(transferSet);
 }
