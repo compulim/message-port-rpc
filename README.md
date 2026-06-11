@@ -184,9 +184,9 @@ With a new pair of `MessagePort`, messages are queued until the event listener c
 
 ### What can be passed as arguments and return value?
 
-All arguments and return value will be send over the `MessagePort`. The values must be [transferable object](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects) using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
+All arguments and return value will be send over the `MessagePort`. The `MessagePort` implementation should send the value using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm). You should not pass `function` or `class` as an argument or return value.
 
-In other words, you cannot pass `function` or `class` as an argument or return value.
+[Transferable objects](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects) in call arguments and return values are automatically populated into the `transfer` argument of `MessagePort.postMessage` function call.
 
 ### Will it pass the `this` context?
 
