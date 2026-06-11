@@ -37,8 +37,7 @@ export default function useReducerSource<R extends Reducer<any, any>, I>(
 
     messagePortRPC<(port: MessagePort) => void>(port)
       .withOptions({
-        signal: abortController.signal,
-        transfer: [port1]
+        signal: abortController.signal
       })(port1)
       .catch(() => {
         // Ignore intentional rejection.
