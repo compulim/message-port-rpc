@@ -8,9 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | Icon | Description                                                    |
 | ---- | -------------------------------------------------------------- |
 | 👷🏻   | Related to development experience and non-production impacting |
+| 💥   | Related to API breaking changes                                |
 
 ## [Unreleased]
 
+### Added
+
+- Transferable objects in call arguments and return values are automatically added to `TransferList`, by [@compulim](https://github.com/compulim) in PR [#65](https://github.com/compulim/message-port-rpc/pull/65)
+
+### Removed
+
+- 💥 `transfer` in call `Options` is removed in favor of the auto-transfer feature, by [@compulim](https://github.com/compulim) in PR [#65](https://github.com/compulim/message-port-rpc/pull/65)
 ## [2.0.1] - 2026-05-31
 
 ### Changed

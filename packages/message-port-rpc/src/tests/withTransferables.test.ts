@@ -32,7 +32,7 @@ describe('send transferables', () => {
 
       const arrayBuffer = new Int8Array([1, 2, 3]).buffer;
 
-      rpc.withOptions({ transfer: [arrayBuffer, port1] })(arrayBuffer, port1);
+      rpc(arrayBuffer, port1);
 
       await waitFor(() => expect(fn.mock.callCount()).toBe(1));
     });
