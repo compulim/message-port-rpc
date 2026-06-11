@@ -154,7 +154,7 @@ function messagePortRPC<T extends (...args: unknown[]) => Promise<unknown>>(
 ): {
   (...args: Parameters<T>): Promise<ReturnType<T>>;
 
-  withOptions: (init: { signal?: AbortSignal; transfer?: Transferable[] }) => (...args: Parameters<T>): Promise<ReturnType<T>>;
+  withOptions: (init: { signal?: AbortSignal }) => (...args: Parameters<T>): Promise<ReturnType<T>>;
 };
 
 function forGenerator<
@@ -168,7 +168,7 @@ function forGenerator<
 ): {
   (...args: Parameters<T>): AsyncGenerator<TYield, TReturn, TNext>;
 
-  withOptions: (init: { signal?: AbortSignal; transfer?: Transferable[] }) => (...args: Parameters<T>): AsyncGenerator<TYield, TReturn, TNext>;
+  withOptions: (init: { signal?: AbortSignal }) => (...args: Parameters<T>): AsyncGenerator<TYield, TReturn, TNext>;
 };
 ```
 
@@ -184,7 +184,7 @@ With a new pair of `MessagePort`, messages are queued until the event listener c
 
 ### What can be passed as arguments and return value?
 
-All arguments and return value will be send over the `MessagePort`. The values must be transferable using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
+All arguments and return value will be send over the `MessagePort`. The values must be [transferable object](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects) using the [Structured Clone Algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) by the underlying `MessagePort`.
 
 In other words, you cannot pass `function` or `class` as an argument or return value.
 

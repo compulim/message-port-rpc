@@ -1,5 +1,6 @@
 // Naming is from https://www.w3.org/History/1992/nfs_dxcern_mirror/rpc/doc/Introduction/HowItWorks.html.
 
+import getAllTransfer from './getAllTransfer.ts';
 import { type ReturnValueOfPromise } from './private/types/ReturnValueOfPromise.ts';
 
 const ABORT = 'ABORT';
@@ -16,7 +17,6 @@ type RPCResolveMessage<T extends Subroutine> = [typeof RESOLVE, ReturnValueOfPro
 
 type CallInit = {
   signal?: AbortSignal | undefined;
-  transfer?: readonly Transferable[] | undefined;
 };
 
 // Regardless whether T returns Promise or not, the client stub must return Promise.
@@ -27,7 +27,6 @@ type ClientStubWithExtra<T extends Subroutine> = ClientStub<T> & {
    * Creates a new stub with options.
    *
    * @param {AbortSignal} init.signal - Abort signal to abort the call to the stub.
-   * @param {Transferable[]} init.transfer - Transfer ownership of objects specified in `args`.
    */
   withOptions: (init: CallInit) => ClientStub<T>;
 };
@@ -45,9 +44,9 @@ type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args:
  * This function supports bidirectional RPC when both sides are passing the `fn` argument.
  *
  * When calling the returned function stub, the arguments and return value are transferred over `MessagePort`.
- * Thus, they will be cloned by the underlying structured clone algorithm.
+ * Thus, they should be cloned by the underlying structured clone algorithm provided by the `MessagePort` implementation.
  *
- * The returned stub has a variant `withOptions` for passing transferables and abort signal.
+ * The returned stub has a variant `withOptions` for passing abort signal.
  *
  * @param {MessagePort} port - The `MessagePort` object to send the calls. The underlying `MessageChannel` must be exclusively used by this function only.
  * @param {Function} fn - The function to invoke. If not set, this RPC cannot be invoked by the other side of `MessagePort`.
@@ -100,10 +99,9 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
           try {
             returnPort.onmessage = ({ data }) => Array.isArray(data) && data[0] === ABORT && abortController.abort();
 
-            returnPort.postMessage([
-              RESOLVE,
-              await fn.call({ signal: abortController.signal }, ...(data.slice(1) as Parameters<S>))
-            ]);
+            const result = await fn.call({ signal: abortController.signal }, ...(data.slice(1) as Parameters<S>));
+
+            returnPort.postMessage([RESOLVE, result], getAllTransfer(result));
           } catch (error) {
             returnPort.postMessage([REJECT, error]);
           } finally {
@@ -150,7 +148,9 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
           reject(new Error('Aborted.'));
         });
 
-        port.postMessage([CALL, ...args] satisfies RPCCallMessage<C>, [port2, ...(init.transfer || [])]);
+        const transfer = getAllTransfer(args);
+
+        port.postMessage([CALL, ...args] satisfies RPCCallMessage<C>, [port2, ...transfer]);
       });
     };
 
