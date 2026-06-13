@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `ClientStub` should use built-in [`Awaited<T>`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) to improve support of unwrapping `Promise` return value, by [@compulim](https://github.com/compulim) in PR [#XXX](https://github.com/compulim/message-port-rpc/pull/XXX)
+- `ClientStub` should use built-in [`Awaited<T>`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) to improve support of unwrapping `Promise` return value, by [@compulim](https://github.com/compulim) in PR [#69](https://github.com/compulim/message-port-rpc/pull/69)
 
 ## [3.0.0] - 2026-06-11
 
