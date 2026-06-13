@@ -1,37 +1,17 @@
 // Naming is from https://www.w3.org/History/1992/nfs_dxcern_mirror/rpc/doc/Introduction/HowItWorks.html.
 
 import getAllTransfer from './getAllTransfer.ts';
-import { type ReturnValueOfPromise } from './private/types/ReturnValueOfPromise.ts';
+import type { CallInit, ClientStub, ServerStub, Subroutine } from './types.ts';
 
 const ABORT = 'ABORT';
 const CALL = 'CALL';
 const REJECT = 'REJECT';
 const RESOLVE = 'RESOLVE';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Subroutine = (...args: any[]) => Promise<unknown> | unknown;
 type RPCCallMessage<T extends Subroutine> = [typeof CALL, ...Parameters<T>];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RPCRejectMessage = [typeof REJECT, any];
-type RPCResolveMessage<T extends Subroutine> = [typeof RESOLVE, ReturnValueOfPromise<ReturnType<T>>];
-
-type CallInit = {
-  signal?: AbortSignal | undefined;
-};
-
-// Regardless whether T returns Promise or not, the client stub must return Promise.
-type ClientStub<T extends Subroutine> = (...args: Parameters<T>) => Promise<ReturnValueOfPromise<ReturnType<T>>>;
-
-type ClientStubWithExtra<T extends Subroutine> = ClientStub<T> & {
-  /**
-   * Creates a new stub with options.
-   *
-   * @param {AbortSignal} init.signal - Abort signal to abort the call to the stub.
-   */
-  withOptions: (init: CallInit) => ClientStub<T>;
-};
-
-type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args: Parameters<T>) => ReturnType<T>;
+type RPCResolveMessage<T extends Subroutine> = [typeof RESOLVE, Awaited<ReturnType<T>>];
 
 /**
  * Binds a function to a `MessagePort` in RPC fashion and/or create a RPC function stub connected to a `MessagePort`.
@@ -54,23 +34,23 @@ type ServerStub<T extends Subroutine> = (this: { signal: AbortSignal }, ...args:
  *
  * @returns An asynchronous function, when called, will invoke the function on the other side of `MessagePort`.
  */
-export default function messagePortRPC<C extends Subroutine>(port: MessagePort): ClientStubWithExtra<C>;
+function messagePortRPC<C extends Subroutine>(port: MessagePort): ClientStub<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
+function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
   fn: ServerStub<S>
-): ClientStubWithExtra<C>;
+): ClientStub<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
+function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
   fn: ServerStub<S>,
   options: { signal: AbortSignal }
-): ClientStubWithExtra<C>;
+): ClientStub<C>;
 
-export default function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
+function messagePortRPC<C extends Subroutine, S extends Subroutine = C>(
   port: MessagePort,
   fn?: ServerStub<S>
-): ClientStubWithExtra<C> {
+): ClientStub<C> {
   // We cannot neuter the input port because it would cause memory leak:
   // - We can neuter a port by passing it through Structured Clone Algorithm so the input port will become non-functional
   // - After a port is neutered, closing the neutered port will not close the cloned port
@@ -78,7 +58,7 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
   // - This defeated our philosophy: whoever pass a resources to a function, should own the resources unless it is intentional and no other workarounds
 
   type ClientSubroutineParameters = Parameters<C>;
-  type ClientSubroutineReturnValue = ReturnValueOfPromise<ReturnType<C>>;
+  type ClientSubroutineReturnValue = Awaited<ReturnType<C>>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMessage = (event: MessageEvent<RPCCallMessage<S>>): void => {
@@ -155,9 +135,11 @@ export default function messagePortRPC<C extends Subroutine, S extends Subroutin
       });
     };
 
-  const stub = createWithOptions({}) as ClientStubWithExtra<C>;
+  const stub = createWithOptions({}) as ClientStub<C>;
 
   stub.withOptions = createWithOptions;
 
   return stub;
 }
+
+export default messagePortRPC;
