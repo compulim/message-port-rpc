@@ -1,4 +1,3 @@
-import forGenerator from './forGenerator.ts';
-import messagePortRPC from './messagePortRPC.ts';
-
-export { forGenerator, messagePortRPC };
+export { default as forGenerator } from './forGenerator.ts';
+export { default as messagePortRPC } from './messagePortRPC.ts';
+export type { CallInit, ClientStub, ServerStub, Subroutine } from './types.ts';
